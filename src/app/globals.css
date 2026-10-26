@@ -1,0 +1,274 @@
+@import "tailwindcss";
+
+/*
+ * Cartory Wash design tokens (PROJECT_GUIDE §9). The prototype's dark Cartory palette, taken from
+ * the logo, over the Industry system. Features use these through Tailwind classes only (bg-bg,
+ * text-neutral-700, border-divider, bg-cash ...); no raw hex outside this file.
+ */
+:root {
+  --bg: #0a0a0a;
+  --surface: #151515;
+  --text: #f4f4f2;
+  --divider: color-mix(in srgb, #ffffff 18%, transparent);
+  --accent: #f5b301; /* Cartory yellow: primary, selection, kickers */
+  --accent-2: #12c4f5; /* cyan: bank transfer data only */
+  --orange: #ff6a13; /* orange: POS data only */
+  --logo-ground: #000000; /* the logo artwork has a black ground; its tile matches it */
+
+  --neutral-100: #141414;
+  --neutral-200: #1f1f20;
+  --neutral-300: #2c2c2e;
+  --neutral-400: #3d3d40;
+  --neutral-500: #5a5a5e;
+  --neutral-600: #7c7c80;
+  --neutral-700: #a3a3a7;
+  --neutral-800: #c8c8cb;
+  --neutral-900: #e6e6e8;
+
+  --accent-100: #261c03;
+  --accent-200: #3d2d05;
+  --accent-300: #6b4f08;
+  --accent-400: #a67a0a;
+  --accent-500: #f5b301;
+  --accent-600: #ffc533;
+  --accent-700: #ffd257;
+  --accent-800: #ffe08a;
+  --accent-900: #fff0c4;
+
+  --radius: 0px;
+}
+
+/* Only our palette and square corners exist: no stray default colours or radii. */
+@theme {
+  --color-*: initial;
+  --radius-*: initial;
+
+  --shadow-sm: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-md: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 6px 18px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-divider: var(--divider);
+  --color-accent: var(--accent);
+  --color-logo: var(--logo-ground);
+
+  /* Payment-method data colours, always cash → transfer → POS. */
+  --color-cash: var(--accent);
+  --color-transfer: var(--accent-2);
+  --color-pos: var(--orange);
+
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
+
+  --color-accent-100: var(--accent-100);
+  --color-accent-200: var(--accent-200);
+  --color-accent-300: var(--accent-300);
+  --color-accent-400: var(--accent-400);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+  --color-accent-800: var(--accent-800);
+  --color-accent-900: var(--accent-900);
+
+  --font-heading: var(--font-barlow-condensed), "Barlow Condensed", system-ui, sans-serif;
+  --font-body: var(--font-barlow), "Barlow", system-ui, sans-serif;
+  --font-sans: var(--font-barlow), "Barlow", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  h1 {
+    font-size: 40px;
+    line-height: 1;
+  }
+  h2 {
+    font-size: 32px;
+  }
+  h3 {
+    font-size: 25px;
+  }
+  h4 {
+    font-size: 20px;
+  }
+
+  a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  a:hover {
+    color: var(--accent-700);
+  }
+
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--accent-300);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* Kicker labels: 11 px caps, +.1em, accent-700. */
+@utility kicker {
+  font-size: 11px;
+  line-height: 1.3;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-700);
+}
+
+@layer components {
+  /*
+   * Blueprint objects (Industry `.blueprint`): a hairline frame with "+" registration marks at the
+   * four corners, drawn outside the box. Cards stay unfilled line drawings; the primary button is
+   * the one filled object and wears the marks too. Markup: four `<i class="corner tl|tr|bl|br">`.
+   */
+  .blueprint {
+    position: relative;
+  }
+  .blueprint > .corner {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    color: var(--neutral-600);
+    pointer-events: none;
+  }
+  .blueprint > .corner::before,
+  .blueprint > .corner::after {
+    content: "";
+    position: absolute;
+    background: currentColor;
+  }
+  .blueprint > .corner::before {
+    left: 5px;
+    top: 0;
+    width: 1px;
+    height: 100%;
+  }
+  .blueprint > .corner::after {
+    top: 5px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+  }
+  .blueprint > .corner.tl {
+    top: -6px;
+    left: -6px;
+  }
+  .blueprint > .corner.tr {
+    top: -6px;
+    right: -6px;
+  }
+  .blueprint > .corner.bl {
+    bottom: -6px;
+    left: -6px;
+  }
+  .blueprint > .corner.br {
+    bottom: -6px;
+    right: -6px;
+  }
+}
+
+/*
+ * Receipt printing: only the receipt, black on white, no app chrome. The receipt dialog marks its
+ * overlay `data-print-overlay`, the receipt `data-print-receipt`, and its buttons
+ * `data-print-hide`.
+ */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  body > *:not([data-print-overlay]) {
+    display: none !important;
+  }
+
+  [data-print-overlay] {
+    position: static !important;
+    display: block !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: none !important;
+    backdrop-filter: none !important;
+  }
+
+  [data-print-receipt] {
+    position: static !important;
+    transform: none !important;
+    margin: 0 auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    background: white !important;
+    border-color: black !important;
+  }
+
+  [data-print-receipt] *:not([data-print-logo], [data-print-logo] *) {
+    color: black !important;
+    background: transparent !important;
+    border-color: black !important;
+  }
+
+  [data-print-receipt] .corner {
+    color: black !important;
+  }
+
+  [data-print-logo] {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  [data-print-hide] {
+    display: none !important;
+  }
+}
