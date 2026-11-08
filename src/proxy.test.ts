@@ -1,11 +1,30 @@
 // @vitest-environment node
+import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { authSession } from "@/testing/fixtures";
 import { tokenExpiringAt } from "@/testing/tokens";
 
-import { proxy } from "./proxy";
+import { config, proxy } from "./proxy";
+
+describe("proxy matcher", () => {
+  const runsOn = (url: string) => unstable_doesMiddlewareMatch({ config, url });
+
+  it("leaves the public landing page at / alone, with or without a query", () => {
+    expect(runsOn("/")).toBe(false);
+    expect(runsOn("/?utm_source=whatsapp")).toBe(false);
+  });
+
+  it("runs on every desk page, sign-in and the exports, but not on files", () => {
+    for (const path of ["/login", "/dashboard", "/new", "/transactions?range=7d"]) {
+      expect(runsOn(path)).toBe(true);
+    }
+    expect(runsOn("/api/export/transactions")).toBe(true);
+    expect(runsOn("/brand/cartory-mark.png")).toBe(false);
+    expect(runsOn("/_next/static/chunks/main.js")).toBe(false);
+  });
+});
 
 function request(
   path: string,

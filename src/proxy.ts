@@ -12,7 +12,8 @@ import {
 const rotate = createRefreshCoordinator({ refresh: requestRefresh });
 
 /**
- * Keeps the desk session alive before any page renders (Next 16 proxy, Node.js runtime).
+ * Keeps the desk session alive before any page renders (Next 16 proxy, Node.js runtime). The
+ * public landing page at `/` is outside the matcher (see `config`).
  *
  * - Fresh access cookie: continue (the layout still checks it with `GET /auth/me`).
  * - Access cookie missing or expiring within 60 s, refresh cookie present: rotate once (shared
@@ -76,8 +77,10 @@ export const config = {
   matcher: [
     /*
      * Every page, Server Action and the CSV export handlers; not framework assets or files with an
-     * extension (brand images, icons). `/login` is included on purpose (see above).
+     * extension (brand images, icons). `/login` is included on purpose (see above). `.+` (not
+     * `.*`) leaves out the bare `/`: the landing page is public and static, so the proxy never
+     * runs (or redirects) there.
      */
-    "/((?!_next/|.*\\.[A-Za-z0-9]+$).*)",
+    "/((?!_next/|.*\\.[A-Za-z0-9]+$).+)",
   ],
 };

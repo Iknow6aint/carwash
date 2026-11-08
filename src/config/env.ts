@@ -8,6 +8,19 @@ import { z } from "zod";
 
 const publicEnvironmentSchema = z.object({
   NEXT_PUBLIC_APP_NAME: z.string().trim().min(1).default("Cartory Wash"),
+  /**
+   * WhatsApp number that receives the landing page's "Book a demo" requests: international
+   * format, digits only (e.g. `2348030000000`). Optional; without it the landing page shows
+   * "Demo booking opens soon." instead of the form. Inlined at build time.
+   */
+  NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER: z
+    .string()
+    .trim()
+    .regex(
+      /^\d{10,15}$/,
+      "NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER must be 10–15 digits in international format, e.g. 2348030000000",
+    )
+    .optional(),
 });
 
 const serverEnvironmentSchema = publicEnvironmentSchema.extend({
@@ -34,6 +47,7 @@ export type ServerEnv = z.output<typeof serverEnvironmentSchema>;
 
 export const publicEnv: PublicEnv = publicEnvironmentSchema.parse({
   NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || undefined,
+  NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER: process.env.NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER || undefined,
 });
 
 /**
@@ -46,6 +60,7 @@ export function getServerEnv(): ServerEnv {
   }
   return serverEnvironmentSchema.parse({
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || undefined,
+    NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER: process.env.NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER || undefined,
     API_INTERNAL_BASE_URL: process.env.API_INTERNAL_BASE_URL || undefined,
     API_SECURITY_KEY: process.env.API_SECURITY_KEY || undefined,
   });

@@ -22,3 +22,28 @@ describe("getServerEnv", () => {
     expect(() => getServerEnv()).toThrow(/at least 32 characters/);
   });
 });
+
+describe("publicEnv", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+
+  const loadPublicEnv = async () => {
+    vi.resetModules();
+    return (await import("./env")).publicEnv;
+  };
+
+  it("treats NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER as optional, but 10–15 digits when set", async () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER", "");
+    expect((await loadPublicEnv()).NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER).toBeUndefined();
+
+    vi.stubEnv("NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER", " 2348030000000 ");
+    expect((await loadPublicEnv()).NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER).toBe("2348030000000");
+
+    vi.stubEnv("NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER", "+234 803 000 0000");
+    await expect(loadPublicEnv()).rejects.toThrow(/10–15 digits/);
+    vi.stubEnv("NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER", "080300");
+    await expect(loadPublicEnv()).rejects.toThrow(/10–15 digits/);
+  });
+});

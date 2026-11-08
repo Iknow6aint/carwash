@@ -9,7 +9,8 @@ export default function NotFound() {
         <p className="kicker">404</p>
         <h1>Page not found</h1>
         <p className="text-[14px] text-neutral-700">This page doesn&apos;t exist or has moved.</p>
-        <Link className={buttonVariants({ variant: "secondary", className: "mt-3" })} href="/">
+        {/* /login forwards a signed-in user to their desk; `/` is the public landing page. */}
+        <Link className={buttonVariants({ variant: "secondary", className: "mt-3" })} href="/login">
           Back to the desk
         </Link>
       </div>

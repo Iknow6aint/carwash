@@ -30,11 +30,12 @@ npm run dev                   # http://localhost:3000 (the API runs on :4000, se
 
 Environment (validated in `src/config/env.ts`):
 
-| Variable                | Where       | Value                                                                                                      |
-| ----------------------- | ----------- | ---------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_APP_NAME`  | browser     | `Cartory Wash` (fallback name before settings load)                                                        |
-| `API_INTERNAL_BASE_URL` | server only | The API origin **including `/v1`**, e.g. `http://localhost:4000/v1`                                        |
-| `API_SECURITY_KEY`      | server only | Same value as carwash-api's `API_SECURITY_KEY` (32+ characters). Optional locally, **required on Vercel**. |
+| Variable                           | Where       | Value                                                                                                                                                                                                                                         |
+| ---------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_APP_NAME`             | browser     | `Cartory Wash` (fallback name before settings load)                                                                                                                                                                                           |
+| `API_INTERNAL_BASE_URL`            | server only | The API origin **including `/v1`**, e.g. `http://localhost:4000/v1`                                                                                                                                                                           |
+| `API_SECURITY_KEY`                 | server only | Same value as carwash-api's `API_SECURITY_KEY` (32+ characters). Optional locally, **required on Vercel**.                                                                                                                                    |
+| `NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER` | browser     | Optional. WhatsApp number for the landing page's "Book a demo" form, international digits only (10–15, e.g. `2348030000000`). Unset: the form is replaced by "Demo booking opens soon." Inlined at build time, so redeploy after changing it. |
 
 Every server-to-server call (Server Actions, the proxy's refresh, the CSV handlers) sends
 `X-Security-Key` (when the key is set) and `X-Client-Ip` (the browser's IP: the first
@@ -48,6 +49,7 @@ src/
   proxy.ts                 Renews the session 60 s before the access token expires; else /login?returnTo=
   config/env.ts            publicEnv (eager) + getServerEnv() (server only)
   app/
+    page.tsx               Public landing page (static; outside the proxy matcher)
     (auth)/login           Sign in (Server Action form)
     (auth)/change-password Temporary passwords are changed here first
     (desk)/                Signed-in shell: dashboard, new, transactions, services, reports, settings
@@ -70,12 +72,13 @@ src/
   `cw_refresh` (7 days), both `SameSite=Lax`, `Secure` in production. It then redirects: a
   temporary password goes to `/change-password`, otherwise `returnTo`, or admin → `/dashboard`,
   cashier → `/new`. No token ever reaches browser JavaScript.
-- **`src/proxy.ts`** runs before every page, Server Action and export. When the access token is
-  missing or expires within 60 s it calls `POST /auth/refresh` **once per refresh token**
-  (single flight, result shared for 30 s; refresh tokens rotate and reuse signs the user out
-  everywhere) and writes both cookies. No session on a protected page → `/login?returnTo=…`
-  (`safeReturnTo` blocks off-site and looping targets). Server Actions are never redirected: the
-  service answers `unauthorized` and the query client sends the tablet to sign in.
+- **`src/proxy.ts`** runs before every page (except the public landing page at `/`), Server Action
+  and export. When the access token is missing or expires within 60 s it calls
+  `POST /auth/refresh` **once per refresh token** (single flight, result shared for 30 s; refresh
+  tokens rotate and reuse signs the user out everywhere) and writes both cookies. No session on a
+  protected page → `/login?returnTo=…` (`safeReturnTo` blocks off-site and looping targets).
+  Server Actions are never redirected: the service answers `unauthorized` and the query client
+  sends the tablet to sign in.
 - **`(desk)/layout.tsx`** calls `requireUser()` (`GET /auth/me`, `React.cache`), the real check,
   redirects to `/change-password` while `mustChangePassword` is true, and mounts
   `SessionProvider`. Client code uses `useSession()`, `useCan(action)` and `<Can action>`
@@ -182,6 +185,8 @@ build`, output handled by Vercel). Install command `npm ci`.
    - `NEXT_PUBLIC_APP_NAME` = `Cartory Wash`
    - `API_INTERNAL_BASE_URL` = the Render API URL **with `/v1`**, e.g. `https://cartory-api.onrender.com/v1`
    - `API_SECURITY_KEY` = the same secret as the API's `API_SECURITY_KEY` (at least 32 characters)
+   - `NEXT_PUBLIC_DEMO_WHATSAPP_NUMBER` (optional) = the WhatsApp number that receives demo
+     requests, digits only, e.g. `2348030000000`
 4. Add the Vercel domain to the API's `CORS_ORIGINS` on Render (defence in depth: the browser
    never calls the API directly).
 

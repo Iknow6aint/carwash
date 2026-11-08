@@ -55,6 +55,8 @@
   --color-divider: var(--divider);
   --color-accent: var(--accent);
   --color-logo: var(--logo-ground);
+  /* Tailwind's built-in black (reset above): the landing page's black bands and device frames. */
+  --color-black: #000000;
 
   /* Payment-method data colours, always cash → transfer → POS. */
   --color-cash: var(--accent);

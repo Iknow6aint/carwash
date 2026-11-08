@@ -1,9 +1,17 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
-import { landingPath } from "@/lib/auth/return-to";
-import { requireUser } from "@/lib/auth/session";
+import { LandingPage } from "@/features/landing/components/landing-page";
 
-/** `/`: admins land on the dashboard, cashiers on New transaction (signed out: sign in). */
-export default async function HomePage() {
-  redirect(landingPath(await requireUser()));
+export const metadata: Metadata = {
+  title: { absolute: "Cartory Wash · Payment desk for car washes" },
+  description:
+    "Cartory Wash gives your cashiers a three-tap payment desk and gives you a live view of cars washed, money collected and who collected it, by bank transfer or POS.",
+};
+
+/**
+ * `/`: the public landing page, prerendered as static HTML. It needs no session; "Sign in" goes to
+ * `/login`, which forwards a signed-in user to their desk.
+ */
+export default function HomePage() {
+  return <LandingPage />;
 }
