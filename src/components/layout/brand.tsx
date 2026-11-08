@@ -36,8 +36,8 @@ export function BrandMark({
   );
 }
 
-/** Sidebar brand: mark, business name and the "Payment desk" kicker. */
-export function Brand({ name }: { name: string }) {
+/** Sidebar brand: mark, name (the business, or the app on the platform) and a kicker. */
+export function Brand({ name, kicker = "Payment desk" }: { name: string; kicker?: string }) {
   return (
     <div className="flex items-center gap-3 px-1.5">
       <BrandMark alt="" />
@@ -45,7 +45,7 @@ export function Brand({ name }: { name: string }) {
         <div className="font-heading text-[22px] leading-[1.05] font-semibold tracking-[-0.01em] break-words">
           {name}
         </div>
-        <div className="text-[10px] tracking-[0.12em] text-accent-700 uppercase">Payment desk</div>
+        <div className="text-[10px] tracking-[0.12em] text-accent-700 uppercase">{kicker}</div>
       </div>
     </div>
   );

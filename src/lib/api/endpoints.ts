@@ -10,11 +10,13 @@ export const API_ROUTES = {
   auth: {
     /** `POST { email, password }` → AuthSession. Public. */
     login: "/auth/login",
+    /** `POST { businessName, businessPhone, businessAddress?, name, email, password }` → AuthSession. Public. */
+    register: "/auth/register",
     /** `POST { refreshToken }` → AuthSession (rotates). Public. */
     refresh: "/auth/refresh",
     /** `POST { refreshToken }` → null. Public, idempotent. */
     logout: "/auth/logout",
-    /** `GET` → User. */
+    /** `GET` → SessionUser. Any account, whatever the business status. */
     me: "/auth/me",
     /** `POST { currentPassword, newPassword }` → AuthSession. */
     password: "/auth/password",
@@ -66,6 +68,23 @@ export const API_ROUTES = {
   settings: {
     /** `GET` → BusinessSettings; `PATCH` (admin) → BusinessSettings. */
     business: "/settings/business",
+  },
+  /** platform.md (super admin only) */
+  platform: {
+    /** `GET` → PlatformOverview. */
+    overview: "/platform/overview",
+    businesses: {
+      /** `GET ?status&q&page&limit` → Page<PlatformBusiness>, newest registration first. */
+      list: "/platform/businesses",
+      /** `GET` → PlatformBusiness. */
+      detail: (id: string) => `/platform/businesses/${encodeURIComponent(id)}`,
+      /** `POST` → PlatformBusiness. Only from pending. */
+      approve: (id: string) => `/platform/businesses/${encodeURIComponent(id)}/approve`,
+      /** `POST { reason }` → PlatformBusiness. From pending (decline) or active. */
+      suspend: (id: string) => `/platform/businesses/${encodeURIComponent(id)}/suspend`,
+      /** `POST` → PlatformBusiness. Only from suspended. */
+      reactivate: (id: string) => `/platform/businesses/${encodeURIComponent(id)}/reactivate`,
+    },
   },
 } as const;
 

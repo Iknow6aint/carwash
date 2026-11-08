@@ -1,10 +1,14 @@
 import { z } from "zod";
 
 import { userSchema } from "@/features/auth/schemas/auth.schema";
-import { countSchema, roleSchema } from "@/lib/api/schema-helpers";
+import { countSchema, staffRoleSchema } from "@/lib/api/schema-helpers";
 
-/** staff.md — `StaffMember` = `User` + today's paid count (Lagos). */
+/**
+ * staff.md — `StaffMember` = `User` + today's paid count (Lagos). Only the caller's business's
+ * staff, so the role is always a staff role (never `super_admin`).
+ */
 export const staffMemberSchema = userSchema.extend({
+  role: staffRoleSchema,
   todayCount: countSchema,
 });
 export type StaffMember = z.output<typeof staffMemberSchema>;
@@ -26,7 +30,7 @@ export const addStaffSchema = z.object({
     .toLowerCase()
     .min(1, "Enter their email.")
     .refine((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), "Enter a valid email."),
-  role: roleSchema,
+  role: staffRoleSchema,
   temporaryPassword: temporaryPasswordSchema,
 });
 export type AddStaffInput = z.input<typeof addStaffSchema>;
@@ -35,7 +39,7 @@ export type AddStaffInput = z.input<typeof addStaffSchema>;
 export const updateStaffSchema = z
   .object({
     name: z.string().trim().min(1, "Enter their name.").max(80, "Use 80 characters or fewer."),
-    role: roleSchema,
+    role: staffRoleSchema,
   })
   .partial();
 export type UpdateStaffInput = z.input<typeof updateStaffSchema>;

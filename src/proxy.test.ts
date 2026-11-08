@@ -145,6 +145,24 @@ describe("proxy", () => {
     expect(response.headers.get("x-middleware-next")).toBe("1");
   });
 
+  it("renders the registration page for signed-out visitors, without a returnTo", async () => {
+    const response = await proxy(request("/register"));
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+    expect(response.headers.get("x-middleware-request-x-desk-path")).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps the business status and platform pages behind a session", async () => {
+    const status = await proxy(request("/business-status"));
+    expect(status.status).toBe(307);
+    // Never a place to come back to: signing in decides it again.
+    expect(status.headers.get("location")).toBe("http://desk.test/login");
+
+    const platform = await proxy(request("/platform"));
+    expect(platform.status).toBe(307);
+    expect(platform.headers.get("location")).toBe("http://desk.test/login?returnTo=%2Fplatform");
+  });
+
   it("never redirects a Server Action call: the service answers unauthorized instead", async () => {
     const response = await proxy(request("/transactions", {}, { "next-action": "abc123" }));
     expect(response.headers.get("x-middleware-next")).toBe("1");

@@ -30,6 +30,7 @@ export const REJECTED_TOKEN_MS = 60_000;
 const REFRESH_TIMEOUT_MS = 8_000;
 const MAX_ENTRIES = 500;
 
+/** `login`: the sign-in and registration pages, which render for signed-out visitors. */
 export type ProxyRoute = "protected" | "login";
 
 /** What the proxy does with one request. */
@@ -93,7 +94,7 @@ export function decideProxyAction(input: {
 }): ProxyAction {
   if (isAccessTokenFresh(input.accessToken, input.now)) return "continue";
   if (input.refreshToken) return "refresh";
-  // The sign-in page renders for signed-out visitors; every other page needs a session.
+  // Sign-in and registration render for signed-out visitors; every other page needs a session.
   return input.route === "login" ? "continue" : "login";
 }
 

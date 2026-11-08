@@ -19,3 +19,23 @@ export interface ChangePasswordState {
 }
 
 export const initialChangePasswordState: ChangePasswordState = { errors: {} };
+
+/** What the registration form keeps between attempts: everything typed except the password. */
+export interface RegisterValues {
+  businessName: string;
+  businessPhone: string;
+  businessAddress: string;
+  name: string;
+  email: string;
+}
+
+/** State the registration Server Action hands back to `useActionState`. */
+export interface RegisterState {
+  errors: Partial<Record<keyof RegisterValues | "password" | "form", string>>;
+  values: RegisterValues;
+}
+
+export const initialRegisterState: RegisterState = {
+  errors: {},
+  values: { businessName: "", businessPhone: "", businessAddress: "", name: "", email: "" },
+};

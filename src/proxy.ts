@@ -2,7 +2,13 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { clientIpFrom } from "@/lib/api/server-headers";
 import { AUTH_COOKIE, setSessionCookies } from "@/lib/auth/cookies";
-import { DESK_PATH_HEADER, LOGIN_PATH, loginPath, returnToFromUrl } from "@/lib/auth/return-to";
+import {
+  DESK_PATH_HEADER,
+  LOGIN_PATH,
+  loginPath,
+  REGISTER_PATH,
+  returnToFromUrl,
+} from "@/lib/auth/return-to";
 import {
   createRefreshCoordinator,
   decideProxyAction,
@@ -10,6 +16,9 @@ import {
 } from "@/lib/auth/session-refresh";
 
 const rotate = createRefreshCoordinator({ refresh: requestRefresh });
+
+/** Pages a signed-out visitor may open: sign in, and register a new car wash. */
+const PUBLIC_AUTH_PATHS: readonly string[] = [LOGIN_PATH, REGISTER_PATH];
 
 /**
  * Keeps the desk session alive before any page renders (Next 16 proxy, Node.js runtime). The
@@ -22,12 +31,12 @@ const rotate = createRefreshCoordinator({ refresh: requestRefresh });
  *   `X-Client-Ip`, read straight from `request.headers`.
  * - No usable session on a protected page: redirect to `/login?returnTo=<this page>`.
  *
- * `/login` passes through too, so someone returning with only a refresh cookie is signed in again
- * and the login page sends them on. Server Action calls are never redirected: the service answers
+ * `/login` and `/register` pass through too, so someone returning with only a refresh cookie is
+ * signed in again and the page sends them on. Server Action calls are never redirected: the service answers
  * `unauthorized` and the client sends the tablet to sign in (see lib/api/query-client.ts).
  */
 export async function proxy(request: NextRequest) {
-  const isLogin = request.nextUrl.pathname === LOGIN_PATH;
+  const isLogin = PUBLIC_AUTH_PATHS.includes(request.nextUrl.pathname);
   const isServerAction = request.headers.has("next-action");
   const returnTo = returnToFromUrl(request.nextUrl);
   const refreshToken = request.cookies.get(AUTH_COOKIE.refresh)?.value;
@@ -77,9 +86,9 @@ export const config = {
   matcher: [
     /*
      * Every page, Server Action and the CSV export handlers; not framework assets or files with an
-     * extension (brand images, icons). `/login` is included on purpose (see above). `.+` (not
-     * `.*`) leaves out the bare `/`: the landing page is public and static, so the proxy never
-     * runs (or redirects) there.
+     * extension (brand images, icons). `/login` and `/register` are included on purpose (see
+     * above). `.+` (not `.*`) leaves out the bare `/`: the landing page is public and static, so
+     * the proxy never runs (or redirects) there.
      */
     "/((?!_next/|.*\\.[A-Za-z0-9]+$).+)",
   ],

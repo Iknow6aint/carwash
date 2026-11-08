@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { toast } from "@/components/ui/toast";
-import { adminUser, cashierUser, exteriorWash, fullWash } from "@/testing/fixtures";
+import { adminSessionUser, cashierSessionUser, exteriorWash, fullWash } from "@/testing/fixtures";
 import { renderWithDesk } from "@/testing/render";
 
 import { createService, listServices, updateService } from "../services/services.service";
@@ -35,7 +35,7 @@ describe("ServicesView", () => {
   });
 
   it("shows cashiers the prices read-only with the admin notice", async () => {
-    renderWithDesk(<ServicesView />, { user: cashierUser });
+    renderWithDesk(<ServicesView />, { user: cashierSessionUser });
     expect(await screen.findByText("Full wash")).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -54,7 +54,7 @@ describe("ServicesView", () => {
       message: "Tyre shine added",
     });
     const user = userEvent.setup();
-    renderWithDesk(<ServicesView />, { user: adminUser });
+    renderWithDesk(<ServicesView />, { user: adminSessionUser });
     await screen.findByText("Full wash");
 
     await user.click(screen.getByRole("button", { name: "Add service" }));
@@ -77,7 +77,7 @@ describe("ServicesView", () => {
       message: "Price saved · applies to new transactions",
     });
     const user = userEvent.setup();
-    renderWithDesk(<ServicesView />, { user: adminUser });
+    renderWithDesk(<ServicesView />, { user: adminSessionUser });
     await user.click(await screen.findByRole("button", { name: "Edit Full wash" }));
     const price = screen.getByLabelText("Price in naira");
     await user.clear(price);
@@ -90,7 +90,7 @@ describe("ServicesView", () => {
   });
 
   it("dims inactive services and offers Activate", async () => {
-    renderWithDesk(<ServicesView />, { user: adminUser });
+    renderWithDesk(<ServicesView />, { user: adminSessionUser });
     const row = (await screen.findByText("Upholstery shampoo")).closest("tr");
     expect(row).not.toBeNull();
     expect(within(row as HTMLElement).getByText("Inactive")).toBeInTheDocument();

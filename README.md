@@ -1,7 +1,10 @@
 # Cartory Wash Payment Desk (web)
 
-The cashier and admin web app for Cartory Wash: record car-wash sales in three taps, issue
-receipts, and see revenue by payment method, service and cashier. Next.js 16 (App Router), React
+The web app for the Cartory Wash platform. Car washes register themselves; once a super admin
+approves them, their cashiers and admins record sales in three taps, issue receipts, and see
+revenue by payment method, service and cashier. Super admins review registrations and approve,
+suspend or reactivate businesses from `/platform` (ADR-002 in `../carwash-api/docs/adr/`).
+Next.js 16 (App Router), React
 19, TanStack Query 5, Zod 4, Tailwind CSS v4, Radix (dialog, dropdown), sonner, Vitest.
 
 The product rules live in `../PROJECT_GUIDE.md`. The screens, copy and behaviour come from
@@ -51,15 +54,18 @@ src/
   app/
     page.tsx               Public landing page (static; outside the proxy matcher)
     (auth)/login           Sign in (Server Action form)
+    (auth)/register        A car wash registers itself and its owner (public)
     (auth)/change-password Temporary passwords are changed here first
-    (desk)/                Signed-in shell: dashboard, new, transactions, services, reports, settings
+    (auth)/business-status Staff of a pending or suspended business wait here
+    (desk)/                Staff shell: dashboard, new, transactions, services, reports, settings
+    (platform)/platform    Super admin shell: businesses list and /platform/businesses/[id]
     api/export/…           Two CSV Route Handlers (transactions, daily totals)
   components/
     ui/  feedback/  layout/  navigation/  access/
   features/<domain>/       components/ hooks/ schemas/ services/ utils/
   lib/
     api/                   server client, envelope, ApiError, ServiceResult, endpoints, query keys
-    auth/                  cookies, session (requireUser), proxy refresh logic, return-to, access
+    auth/                  cookies, session (requireUser/StaffUser/SuperAdmin), refresh, return-to, access
     format/                money, date, plate, payment-method, text (all Lagos-pinned)
   providers/               QueryProvider, SessionProvider (useSession, useCan), AppProviders
   testing/                 Typed fixtures and renderWithDesk()
@@ -70,19 +76,26 @@ src/
 - **Sign in** is the `signIn` Server Action (`features/auth/services/auth.service.ts`): `POST
 /auth/login`, then two HttpOnly cookies, `cw_access` (lives until `accessTokenExpiresAt`) and
   `cw_refresh` (7 days), both `SameSite=Lax`, `Secure` in production. It then redirects: a
-  temporary password goes to `/change-password`, otherwise `returnTo`, or admin → `/dashboard`,
-  cashier → `/new`. No token ever reaches browser JavaScript.
-- **`src/proxy.ts`** runs before every page (except the public landing page at `/`), Server Action
+  temporary password goes to `/change-password`; staff of a business that isn't active go to
+  `/business-status`; otherwise `returnTo` (only within the user's area), or super admin →
+  `/platform`, admin → `/dashboard`, cashier → `/new` (`landingPath` in `lib/auth/return-to.ts`).
+  No token ever reaches browser JavaScript.
+- **Register** is the `registerBusiness` Server Action: `POST /auth/register` creates a pending
+  business and its owner, sets the same cookies and lands the owner on `/business-status`.
+- **`src/proxy.ts`** runs before every page except the public landing page at `/`, Server Action
   and export. When the access token is missing or expires within 60 s it calls
   `POST /auth/refresh` **once per refresh token** (single flight, result shared for 30 s; refresh
-  tokens rotate and reuse signs the user out everywhere) and writes both cookies. No session on a
-  protected page → `/login?returnTo=…` (`safeReturnTo` blocks off-site and looping targets).
-  Server Actions are never redirected: the service answers `unauthorized` and the query client
-  sends the tablet to sign in.
-- **`(desk)/layout.tsx`** calls `requireUser()` (`GET /auth/me`, `React.cache`), the real check,
-  redirects to `/change-password` while `mustChangePassword` is true, and mounts
-  `SessionProvider`. Client code uses `useSession()`, `useCan(action)` and `<Can action>`
-  (`lib/auth/access.ts` lists the admin-only actions). The API enforces roles regardless.
+  tokens rotate and reuse signs the user out everywhere) and writes both cookies. `/login` and
+  `/register` render without a session; any other page without one → `/login?returnTo=…`
+  (`safeReturnTo` blocks off-site and looping targets). Server Actions are never redirected: the
+  service answers `unauthorized` and the query client sends the tablet to sign in.
+- **`(desk)/layout.tsx`** calls `requireStaffUser()` (`GET /auth/me`, `React.cache`), the real
+  check: super admins go to `/platform`, a temporary password to `/change-password`, a pending or
+  suspended business to `/business-status`. **`(platform)/layout.tsx`** calls
+  `requireSuperAdmin()` and sends staff to their own landing. Both mount `SessionProvider` (the
+  `SessionUser` with its business). Client code uses `useSession()`, `useCan(action)` and
+  `<Can action>` (`lib/auth/access.ts` lists the admin-only actions). The API enforces roles and
+  business status regardless.
 - **Sign out** is the `signOut` Server Action: `POST /auth/logout`, clear both cookies, `/login`.
 
 ### Data flow: adding a feature
@@ -103,6 +116,7 @@ To add something, touch these shared files (small edits in your own section only
 | A query key           | `src/lib/api/query-keys.ts` (start from the domain's `all`)                        |
 | An admin-only action  | `src/lib/auth/access.ts` (`DESK_ACTIONS`)                                          |
 | A page in the sidebar | `src/components/navigation/navigation-items.ts` + `src/app/(desk)/<href>/page.tsx` |
+| A platform page       | `platformNavigationItems` + `src/app/(platform)/platform/<href>/page.tsx`          |
 | A token               | `src/app/globals.css` (`:root` + `@theme inline`)                                  |
 
 Then, in `features/<domain>/`:

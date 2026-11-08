@@ -5,35 +5,39 @@ import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState, type PropsWithChildren } from "react";
 
-import { sectionLabel } from "@/components/navigation/navigation-items";
+import {
+  sectionLabel,
+  shellNavigation,
+  type ShellArea,
+} from "@/components/navigation/navigation-items";
 import { SidebarNavigation } from "@/components/navigation/sidebar-navigation";
 import { Tag } from "@/components/ui/tag";
-import { publicEnv } from "@/config/env";
-import { useBusinessSettings } from "@/features/settings/hooks/use-business-settings";
 import { ROLE_LABELS } from "@/lib/auth/access";
 import { useSession } from "@/providers/session-provider";
 
 import { Brand, BrandMark } from "./brand";
 import { SignOutButton } from "./sign-out-button";
 
-/** The business name from settings, or the app name while it loads. */
-function useBusinessName(): string {
-  const settings = useBusinessSettings();
-  return settings.data?.name ?? publicEnv.NEXT_PUBLIC_APP_NAME;
+const KICKERS: Record<ShellArea, string> = { desk: "Payment desk", platform: "Platform" };
+
+interface ShellProps {
+  /** Which sidebar to show. A key, not the items: icons can't be passed from a server layout. */
+  area: ShellArea;
+  /** The brand name: the business on the desk, the app on the platform. */
+  title: string;
 }
 
-function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+function Sidebar({ area, title, onNavigate }: ShellProps & { onNavigate?: () => void }) {
   const { user } = useSession();
-  const name = useBusinessName();
   return (
     <div className="flex h-full flex-col gap-7 overflow-y-auto px-3.5 py-7">
-      <Brand name={name} />
-      <SidebarNavigation onNavigate={onNavigate} />
+      <Brand kicker={KICKERS[area]} name={title} />
+      <SidebarNavigation items={shellNavigation[area]} onNavigate={onNavigate} />
       <div className="mt-auto flex flex-col gap-0.5 px-1.5">
         <p className="text-[11px] text-neutral-700">Signed in as</p>
         <p className="text-[14px] font-medium break-words">{user.name}</p>
         <div>
-          <Tag tone={user.role === "admin" ? "accent" : "neutral"}>{ROLE_LABELS[user.role]}</Tag>
+          <Tag tone={user.role === "cashier" ? "neutral" : "accent"}>{ROLE_LABELS[user.role]}</Tag>
         </div>
         <SignOutButton />
       </div>
@@ -42,14 +46,14 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 /**
- * The desk frame. At `lg`+ a fixed sidebar (brand, navigation, who is signed in); below `lg` a top
- * bar with the page name and a Menu button that opens the same sidebar as a drawer. Pages render
- * their own PageHeader.
+ * The signed-in frame for the desk and the platform. At `lg`+ a fixed sidebar (brand, navigation,
+ * who is signed in); below `lg` a top bar with the page name and a Menu button that opens the same
+ * sidebar as a drawer. Pages render their own PageHeader.
  */
-export function AppShell({ children }: PropsWithChildren) {
+export function AppShell({ area, title, children }: PropsWithChildren<ShellProps>) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
-  const name = useBusinessName();
+  const section = sectionLabel(pathname, shellNavigation[area]);
 
   return (
     <div className="min-h-dvh bg-bg">
@@ -61,7 +65,7 @@ export function AppShell({ children }: PropsWithChildren) {
       </a>
 
       <aside className="fixed inset-y-0 left-0 hidden w-60 border-r border-divider lg:block">
-        <Sidebar />
+        <Sidebar area={area} title={title} />
       </aside>
 
       <div className="lg:pl-60">
@@ -83,7 +87,7 @@ export function AppShell({ children }: PropsWithChildren) {
                 className="fixed inset-y-0 left-0 z-50 w-[min(18rem,86vw)] border-r border-divider bg-bg shadow-lg focus-visible:outline-none lg:hidden"
               >
                 <DialogPrimitive.Title className="sr-only">Main navigation</DialogPrimitive.Title>
-                <Sidebar onNavigate={() => setDrawerOpen(false)} />
+                <Sidebar area={area} onNavigate={() => setDrawerOpen(false)} title={title} />
                 <DialogPrimitive.Close asChild>
                   <button
                     aria-label="Close navigation"
@@ -98,10 +102,8 @@ export function AppShell({ children }: PropsWithChildren) {
           </DialogPrimitive.Root>
           <BrandMark marks={false} size={32} />
           <p className="min-w-0 truncate text-[15px] font-medium">
-            {name}
-            {sectionLabel(pathname) ? (
-              <span className="text-neutral-700"> · {sectionLabel(pathname)}</span>
-            ) : null}
+            {title}
+            {section ? <span className="text-neutral-700"> · {section}</span> : null}
           </p>
         </header>
 

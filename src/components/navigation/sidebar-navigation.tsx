@@ -5,17 +5,23 @@ import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
-import { isActivePath, navigationItems } from "./navigation-items";
+import { isActivePath, navigationItems, type NavigationItem } from "./navigation-items";
 
 /**
  * Sidebar links. The active page wears the selected treatment: accent-100 fill, accent-300 edge,
  * accent-800 text.
  */
-export function SidebarNavigation({ onNavigate }: { onNavigate?: () => void }) {
+export function SidebarNavigation({
+  items = navigationItems,
+  onNavigate,
+}: {
+  items?: readonly NavigationItem[];
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   return (
     <nav aria-label="Main" className="flex flex-col gap-0.5">
-      {navigationItems.map((item) => {
+      {items.map((item) => {
         const active = isActivePath(pathname, item.href);
         const Icon = item.icon;
         return (

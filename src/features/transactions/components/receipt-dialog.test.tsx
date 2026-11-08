@@ -3,14 +3,14 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { toast } from "@/components/ui/toast";
-import type { User } from "@/features/auth/schemas/auth.schema";
+import type { SessionUser } from "@/features/auth/schemas/auth.schema";
 import { getBusinessSettings } from "@/features/settings/services/settings.service";
 import {
   adjustedTransaction,
-  adminUser,
+  adminSessionUser,
   businessSettings,
   cancelledTransaction,
-  cashierUser,
+  cashierSessionUser,
   paidTransaction,
 } from "@/testing/fixtures";
 import { renderWithDesk } from "@/testing/render";
@@ -28,7 +28,7 @@ vi.mock("../services/transactions.service", () => ({
 }));
 vi.mock("@/components/ui/toast", () => ({ toast: vi.fn(), Toaster: () => null }));
 
-function open(transaction: Transaction, user: User = adminUser) {
+function open(transaction: Transaction, user: SessionUser = adminSessionUser) {
   vi.mocked(getBusinessSettings).mockResolvedValue({
     ok: true,
     data: businessSettings,
@@ -60,7 +60,7 @@ describe("ReceiptDialog", () => {
   });
 
   it("gives cashiers no cancel button, only the note", () => {
-    const { dialog } = open(paidTransaction, cashierUser);
+    const { dialog } = open(paidTransaction, cashierSessionUser);
     expect(
       within(dialog).queryByRole("button", { name: "Cancel transaction" }),
     ).not.toBeInTheDocument();
@@ -72,13 +72,13 @@ describe("ReceiptDialog", () => {
       ...paidTransaction,
       status: "cancelled",
       cancellation: {
-        by: { id: adminUser.id, name: adminUser.name },
+        by: { id: adminSessionUser.id, name: adminSessionUser.name },
         reason: "Duplicate entry",
         at: "2026-10-19T10:00:00.000Z",
       },
     };
     const user = userEvent.setup();
-    const { dialog } = open(paidTransaction, adminUser);
+    const { dialog } = open(paidTransaction, adminSessionUser);
     vi.mocked(cancelTransaction).mockImplementation(async () => {
       // From now on the API holds the cancelled record.
       vi.mocked(getTransaction).mockResolvedValue({ ok: true, data: cancelled, message: "OK" });
@@ -125,7 +125,7 @@ describe("ReceiptDialog", () => {
       },
     });
     const user = userEvent.setup();
-    const { dialog } = open(paidTransaction, adminUser);
+    const { dialog } = open(paidTransaction, adminSessionUser);
     await user.click(within(dialog).getByRole("button", { name: "Cancel transaction" }));
     await user.type(
       within(dialog).getByLabelText("Why is this transaction being cancelled?"),
@@ -138,7 +138,7 @@ describe("ReceiptDialog", () => {
   });
 
   it("strikes a cancelled total and offers no cancel", () => {
-    const { dialog } = open(cancelledTransaction, adminUser);
+    const { dialog } = open(cancelledTransaction, adminSessionUser);
     expect(within(dialog).getByText("₦6,000", { selector: ".line-through" })).toBeInTheDocument();
     expect(
       within(dialog).queryByRole("button", { name: "Cancel transaction" }),
@@ -148,7 +148,7 @@ describe("ReceiptDialog", () => {
   it("copies the receipt text and closes on Done", async () => {
     const user = userEvent.setup();
     const writeText = vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue(undefined);
-    const { dialog, onClose } = open(paidTransaction, cashierUser);
+    const { dialog, onClose } = open(paidTransaction, cashierSessionUser);
     await within(dialog).findByText("0803 412 7790");
     await user.click(within(dialog).getByRole("button", { name: "Copy text" }));
     expect(writeText).toHaveBeenCalledWith(

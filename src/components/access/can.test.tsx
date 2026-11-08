@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { can, DESK_ACTIONS, type DeskAction } from "@/lib/auth/access";
-import { adminUser, cashierUser } from "@/testing/fixtures";
+import { adminSessionUser, cashierSessionUser } from "@/testing/fixtures";
 import { renderWithDesk } from "@/testing/render";
 
 import { Can } from "./can";
@@ -13,7 +13,7 @@ describe("<Can>", () => {
       <Can action="transactions:cancel" fallback={<p>Need to cancel? Ask an admin.</p>}>
         <button type="button">Cancel transaction</button>
       </Can>,
-      { user: cashierUser },
+      { user: cashierSessionUser },
     );
     expect(screen.queryByRole("button", { name: "Cancel transaction" })).not.toBeInTheDocument();
     expect(screen.getByText("Need to cancel? Ask an admin.")).toBeInTheDocument();
@@ -24,7 +24,7 @@ describe("<Can>", () => {
       <Can action="services:manage">
         <button type="button">Add service</button>
       </Can>,
-      { user: adminUser },
+      { user: adminSessionUser },
     );
     expect(screen.getByRole("button", { name: "Add service" })).toBeInTheDocument();
   });

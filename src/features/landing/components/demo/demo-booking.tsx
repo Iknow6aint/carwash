@@ -20,12 +20,20 @@ export function DemoBooking() {
         <div className="flex flex-col gap-3.5">
           <h3 className="m-0 text-[30px]">Book a demo</h3>
           <p className="text-[15px] leading-[1.55] text-neutral-800">Demo booking opens soon.</p>
-          <Link
-            className={buttonVariants({ variant: "secondary", className: "self-start" })}
-            href="/login"
-          >
-            Sign in
-          </Link>
+          <div className="flex flex-wrap gap-2.5">
+            <Link
+              className={buttonVariants({ variant: "secondary", className: "self-start" })}
+              href="/register"
+            >
+              Register your car wash
+            </Link>
+            <Link
+              className={buttonVariants({ variant: "secondary", className: "self-start" })}
+              href="/login"
+            >
+              Sign in
+            </Link>
+          </div>
         </div>
       )}
     </Blueprint>

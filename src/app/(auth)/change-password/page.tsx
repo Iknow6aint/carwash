@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { AuthFrame } from "@/features/auth/components/auth-frame";
 import { ChangePasswordForm } from "@/features/auth/components/change-password-form";
-import { homePathForRole } from "@/lib/auth/return-to";
+import { landingPath } from "@/lib/auth/return-to";
 import { requireUser } from "@/lib/auth/session";
 
 export const metadata: Metadata = { title: "Change password" };
@@ -13,7 +13,8 @@ export default async function ChangePasswordPage() {
   return (
     <AuthFrame>
       <ChangePasswordForm
-        homePath={homePathForRole(user.role)}
+        homeLabel={user.role === "super_admin" ? "Back to the platform" : "Back to the desk"}
+        homePath={landingPath({ ...user, mustChangePassword: false })}
         mustChange={user.mustChangePassword}
       />
     </AuthFrame>

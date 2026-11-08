@@ -22,9 +22,11 @@ import { AuthHeading } from "./auth-frame";
 export function ChangePasswordForm({
   mustChange,
   homePath,
+  homeLabel = "Back to the desk",
 }: {
   mustChange: boolean;
   homePath: string;
+  homeLabel?: string;
 }) {
   const [state, formAction, pending] = useActionState(changePassword, initialChangePasswordState);
 
@@ -78,7 +80,7 @@ export function ChangePasswordForm({
       <div className="flex flex-wrap items-center justify-center gap-4">
         {mustChange ? null : (
           <Link className={buttonVariants({ variant: "ghost" })} href={homePath}>
-            Back to the desk
+            {homeLabel}
           </Link>
         )}
         <form action={signOut}>

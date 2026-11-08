@@ -40,6 +40,9 @@ export function DemoSent({ request, whatsAppUrl }: { request: DemoRequest; whats
         >
           Open WhatsApp again
         </a>
+        <Link className={buttonVariants({ variant: "secondary" })} href="/register">
+          Register your car wash
+        </Link>
         <Link className={buttonVariants({ variant: "secondary" })} href="/login">
           Try the payment desk now
         </Link>

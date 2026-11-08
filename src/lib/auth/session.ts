@@ -5,26 +5,32 @@ import { redirect, unstable_rethrow } from "next/navigation";
 import { cache } from "react";
 import { z } from "zod";
 
-import { userSchema, type User } from "@/features/auth/schemas/auth.schema";
+import { sessionUserSchema, type SessionUser } from "@/features/auth/schemas/auth.schema";
 import { ApiError, TRANSPORT_MESSAGES } from "@/lib/api/api-error";
 import { API_ROUTES } from "@/lib/api/endpoints";
 import { backendRequest } from "@/lib/api/server-api-client";
 
 import { AUTH_COOKIE } from "./cookies";
-import { DESK_PATH_HEADER, landingPath, loginPath } from "./return-to";
+import {
+  DESK_PATH_HEADER,
+  deskRedirect,
+  landingPath,
+  loginPath,
+  platformRedirect,
+} from "./return-to";
 
 /**
  * Loads `GET /auth/me` for one access token.
  *
- * @returns The user, or `null` when the API says the token is no good (401/403: expired, revoked,
+ * @returns The account with its business, or `null` when the API says the token is no good (401/403: expired, revoked,
  * deactivated, token version changed).
  * @throws ApiError when the API is unreachable or answers in an unexpected shape, so the page shows
  * an error with Retry instead of a misleading sign-in screen.
  */
-async function loadUser(accessToken: string): Promise<User | null> {
+async function loadUser(accessToken: string): Promise<SessionUser | null> {
   try {
     const { response } = await backendRequest<unknown>(API_ROUTES.auth.me, { accessToken });
-    return userSchema.parse(response.data);
+    return sessionUserSchema.parse(response.data);
   } catch (error) {
     if (
       error instanceof ApiError &&
@@ -45,7 +51,7 @@ async function loadUser(accessToken: string): Promise<User | null> {
  * It never renews the session, because cookies cannot be written while a page renders. The proxy
  * (src/proxy.ts) renews an expiring access token before rendering starts.
  */
-export const getCurrentUser = cache(async (): Promise<User | null> => {
+export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
   const accessToken = (await cookies()).get(AUTH_COOKIE.access)?.value;
   if (!accessToken) return null;
   return loadUser(accessToken);
@@ -56,15 +62,35 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
  * proxy passes it in {@link DESK_PATH_HEADER}). This is the real access check; the proxy is only an
  * optimisation, and the API enforces roles on every call regardless.
  */
-export async function requireUser(): Promise<User> {
+export async function requireUser(): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) redirect(loginPath((await headers()).get(DESK_PATH_HEADER)));
   return user;
 }
 
 /**
- * For the sign-in page: sends someone who is already signed in straight on (temporary password
- * first, then `returnTo`, then their role's landing page).
+ * The signed-in staff member, for every desk page and layout. Anyone else goes where they belong:
+ * super admins to /platform, a temporary password to /change-password, staff of a pending or
+ * suspended business to /business-status (return-to.ts `deskRedirect`).
+ */
+export async function requireStaffUser(): Promise<SessionUser> {
+  const user = await requireUser();
+  const elsewhere = deskRedirect(user);
+  if (elsewhere) redirect(elsewhere);
+  return user;
+}
+
+/** The signed-in super admin, for every platform page and layout; staff go to their landing. */
+export async function requireSuperAdmin(): Promise<SessionUser> {
+  const user = await requireUser();
+  const elsewhere = platformRedirect(user);
+  if (elsewhere) redirect(elsewhere);
+  return user;
+}
+
+/**
+ * For the sign-in and registration pages: sends someone who is already signed in straight on (temporary password
+ * first, then the business status page, then `returnTo`, then their role's landing page).
  */
 export async function redirectIfSignedIn(returnTo: string | null | undefined): Promise<void> {
   const user = await getCurrentUser().catch((error: unknown) => {

@@ -1,5 +1,15 @@
-import type { AuthSession, User } from "@/features/auth/schemas/auth.schema";
+import type {
+  AuthSession,
+  BusinessSummary,
+  SessionUser,
+  User,
+} from "@/features/auth/schemas/auth.schema";
 import type { Dashboard } from "@/features/dashboard/schemas/dashboard.schema";
+import type {
+  PlatformBusiness,
+  PlatformBusinessPage,
+  PlatformOverview,
+} from "@/features/platform/schemas/platform.schema";
 import type { Report } from "@/features/reports/schemas/report.schema";
 import type { Service } from "@/features/services/schemas/service.schema";
 import type { BusinessSettings } from "@/features/settings/schemas/settings.schema";
@@ -14,14 +24,18 @@ import type {
  * business). Tests copy and override them; they never reach a real API.
  */
 
+export const BUSINESS_ID = "64b7f0c2a1b2c3d4e5f60301";
+export const PENDING_BUSINESS_ID = "64b7f0c2a1b2c3d4e5f60302";
 export const ADMIN_ID = "64b7f0c2a1b2c3d4e5f60001";
 export const CASHIER_ID = "64b7f0c2a1b2c3d4e5f60002";
+export const SUPER_ADMIN_ID = "64b7f0c2a1b2c3d4e5f60003";
 export const FULL_WASH_ID = "64b7f0c2a1b2c3d4e5f60101";
 export const EXTERIOR_WASH_ID = "64b7f0c2a1b2c3d4e5f60102";
 export const TRANSACTION_ID = "64b7f0c2a1b2c3d4e5f60201";
 
 export const adminUser = {
   id: ADMIN_ID,
+  businessId: BUSINESS_ID,
   name: "Adaeze Okafor",
   email: "adaeze@cartorywash.ng",
   role: "admin",
@@ -40,12 +54,41 @@ export const cashierUser = {
   role: "cashier",
 } satisfies User;
 
+export const superAdminUser = {
+  ...adminUser,
+  id: SUPER_ADMIN_ID,
+  businessId: null,
+  name: "Ifeoma Nwosu",
+  email: "ifeoma@cartory.app",
+  role: "super_admin",
+} satisfies User;
+
+export const activeBusiness = {
+  id: BUSINESS_ID,
+  name: "Cartory Wash",
+  status: "active",
+} satisfies BusinessSummary;
+
+/** Signed-in accounts as `GET /auth/me` returns them (the desk and platform sessions). */
+export const adminSessionUser = { ...adminUser, business: activeBusiness } satisfies SessionUser;
+export const cashierSessionUser = {
+  ...cashierUser,
+  business: activeBusiness,
+} satisfies SessionUser;
+export const superAdminSessionUser = { ...superAdminUser, business: null } satisfies SessionUser;
+/** The owner of a business still waiting for approval. */
+export const pendingOwnerSessionUser = {
+  ...adminUser,
+  businessId: PENDING_BUSINESS_ID,
+  business: { id: PENDING_BUSINESS_ID, name: "Splash Point", status: "pending" },
+} satisfies SessionUser;
+
 export const authSession = {
   accessToken: "header.payload.signature",
   accessTokenExpiresAt: "2026-10-19T09:15:00.000Z",
   refreshToken: "refresh.payload.signature",
   refreshTokenExpiresAt: "2026-10-26T09:00:00.000Z",
-  user: adminUser,
+  user: adminSessionUser,
 } satisfies AuthSession;
 
 export const staffMember = { ...cashierUser, todayCount: 14 } satisfies StaffMember;
@@ -193,3 +236,54 @@ export const report = {
     },
   ],
 } satisfies Report;
+
+export const activePlatformBusiness = {
+  id: BUSINESS_ID,
+  name: "Cartory Wash",
+  phone: "0803 412 7790",
+  address: "14 Admiralty Way, Lekki Phase 1, Lagos",
+  status: "active",
+  statusReason: null,
+  statusChangedAt: "2026-09-01T10:00:00.000Z",
+  approvedAt: "2026-09-01T10:00:00.000Z",
+  registeredBy: { id: ADMIN_ID, name: "Adaeze Okafor", email: "adaeze@cartorywash.ng" },
+  createdAt: "2026-09-01T09:00:00.000Z",
+  activeStaffCount: 3,
+  last30Days: { carsWashed: 412, revenueKobo: 241_500_000 },
+  lastSaleAt: "2026-10-19T09:30:00.000Z",
+} satisfies PlatformBusiness;
+
+export const pendingPlatformBusiness = {
+  ...activePlatformBusiness,
+  id: PENDING_BUSINESS_ID,
+  name: "Splash Point",
+  phone: "0812 555 0101",
+  address: "",
+  status: "pending",
+  statusChangedAt: null,
+  approvedAt: null,
+  registeredBy: { id: "64b7f0c2a1b2c3d4e5f60011", name: "Chidi Obi", email: "chidi@splash.ng" },
+  createdAt: "2026-10-18T15:20:00.000Z",
+  activeStaffCount: 1,
+  last30Days: { carsWashed: 0, revenueKobo: 0 },
+  lastSaleAt: null,
+} satisfies PlatformBusiness;
+
+export const suspendedPlatformBusiness = {
+  ...activePlatformBusiness,
+  id: "64b7f0c2a1b2c3d4e5f60303",
+  name: "Shine Hub",
+  status: "suspended",
+  statusReason: "Unpaid subscription",
+  statusChangedAt: "2026-10-10T08:00:00.000Z",
+} satisfies PlatformBusiness;
+
+export const platformBusinessPage = {
+  items: [pendingPlatformBusiness, suspendedPlatformBusiness, activePlatformBusiness],
+  pageInfo: { page: 1, limit: 40, total: 3, totalPages: 1 },
+} satisfies PlatformBusinessPage;
+
+export const platformOverview = {
+  businesses: { total: 3, pending: 1, active: 1, suspended: 1 },
+  last30Days: { carsWashed: 412, revenueKobo: 241_500_000 },
+} satisfies PlatformOverview;

@@ -19,8 +19,17 @@ export const signedKoboSchema = z.number().int();
 
 export const countSchema = z.number().int().nonnegative();
 
-export const roleSchema = z.enum(["admin", "cashier"]);
+/** Every account role. `super_admin` runs the platform and belongs to no business. */
+export const roleSchema = z.enum(["super_admin", "admin", "cashier"]);
 export type Role = z.output<typeof roleSchema>;
+
+/** The roles a business's staff can have: the only ones the staff routes accept. */
+export const staffRoleSchema = z.enum(["admin", "cashier"]);
+export type StaffRole = z.output<typeof staffRoleSchema>;
+
+/** A business is `pending` until a super admin approves it; `suspended` locks its staff out. */
+export const businessStatusSchema = z.enum(["pending", "active", "suspended"]);
+export type BusinessStatus = z.output<typeof businessStatusSchema>;
 
 export const pageInfoSchema = z.object({
   page: z.number().int().min(1),

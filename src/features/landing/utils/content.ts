@@ -159,6 +159,7 @@ export const FOOTER_GROUPS: readonly { title: string; links: readonly LandingLin
     title: "Company",
     links: [
       { href: "#demo", label: "Book a demo" },
+      { href: "/register", label: "Register your car wash" },
       { href: "#faq", label: "FAQ" },
       { href: "/login", label: "Sign in" },
     ],

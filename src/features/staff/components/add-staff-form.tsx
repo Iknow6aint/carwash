@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
 import { ApiError, errorMessage } from "@/lib/api/api-error";
-import type { Role } from "@/lib/api/schema-helpers";
+import type { StaffRole } from "@/lib/api/schema-helpers";
 
 import { useAddStaff } from "../hooks/use-staff";
 import { addStaffSchema } from "../schemas/staff.schema";
@@ -17,7 +17,7 @@ import { addStaffSchema } from "../schemas/staff.schema";
 interface Draft {
   name: string;
   email: string;
-  role: Role;
+  role: StaffRole;
   temporaryPassword: string;
 }
 
@@ -92,7 +92,7 @@ export function AddStaffForm() {
           {(props) => (
             <Select
               {...props}
-              onChange={(event) => change("role", event.target.value as Role)}
+              onChange={(event) => change("role", event.target.value as StaffRole)}
               value={draft.role}
             >
               <option value="cashier">Cashier</option>
