@@ -36,5 +36,10 @@ export const queryKeys = {
     overview: () => [...queryKeys.platform.all, "overview"] as const,
     businesses: (filters: object) => [...queryKeys.platform.all, "businesses", filters] as const,
     business: (id: string) => [...queryKeys.platform.all, "business", id] as const,
+    transactions: (filters: object) =>
+      [...queryKeys.platform.all, "transactions", filters] as const,
+    revenue: () => [...queryKeys.platform.all, "revenue"] as const,
+    notifications: () => [...queryKeys.platform.all, "notifications"] as const,
+    settings: () => [...queryKeys.platform.all, "settings"] as const,
   },
 } as const;

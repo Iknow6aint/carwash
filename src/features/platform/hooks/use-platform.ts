@@ -15,14 +15,23 @@ import {
   type ServiceResult,
 } from "@/lib/api/service-result";
 
-import type { PlatformBusiness } from "../schemas/platform.schema";
+import type {
+  ListPlatformTransactionsQuery,
+  PlatformBusiness,
+  UpdatePlatformSettingsInput,
+} from "../schemas/platform.schema";
 import {
   approveBusiness,
   getBusiness,
+  getPlatformNotifications,
   getPlatformOverview,
+  getPlatformRevenue,
+  getPlatformSettings,
   listBusinesses,
+  listPlatformTransactions,
   reactivateBusiness,
   suspendBusiness,
+  updatePlatformSettings,
 } from "../services/platform.service";
 import { businessFiltersToQuery, type BusinessFilters } from "../utils/business-filters";
 
@@ -88,4 +97,47 @@ export function useSuspendBusiness() {
 
 export function useReactivateBusiness() {
   return usePlatformMutation((id: string) => reactivateBusiness(id));
+}
+
+/** Platform-wide transaction metadata, newest first. */
+export function usePlatformTransactions(filters: ListPlatformTransactionsQuery) {
+  return useQuery({
+    queryKey: queryKeys.platform.transactions(filters),
+    queryFn: async () => unwrapServiceResult(await listPlatformTransactions(filters)),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function usePlatformRevenue() {
+  return useQuery({
+    queryKey: queryKeys.platform.revenue(),
+    queryFn: async () => unwrapServiceResult(await getPlatformRevenue()),
+  });
+}
+
+export function usePlatformSettings() {
+  return useQuery({
+    queryKey: queryKeys.platform.settings(),
+    queryFn: async () => unwrapServiceResult(await getPlatformSettings()),
+    staleTime: 60_000,
+  });
+}
+
+export function useUpdatePlatformSettings() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: UpdatePlatformSettingsInput) =>
+      unwrapServiceSuccess(await updatePlatformSettings(input)),
+    onSuccess: ({ data }) => {
+      client.setQueryData(queryKeys.platform.settings(), data);
+      void client.invalidateQueries({ queryKey: queryKeys.platform.all });
+    },
+  });
+}
+
+export function usePlatformNotifications() {
+  return useQuery({
+    queryKey: queryKeys.platform.notifications(),
+    queryFn: async () => unwrapServiceResult(await getPlatformNotifications()),
+  });
 }

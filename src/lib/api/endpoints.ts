@@ -80,6 +80,14 @@ export const API_ROUTES = {
   platform: {
     /** `GET` → PlatformOverview. */
     overview: "/platform/overview",
+    /** `GET ?status&method&q&page&limit` → Page<PlatformTransaction>. */
+    transactions: "/platform/transactions",
+    /** `GET` → PlatformRevenue. */
+    revenue: "/platform/revenue",
+    /** `GET` → PlatformNotification[]. */
+    notifications: "/platform/notifications",
+    /** `GET` / `PATCH` → PlatformSettings. */
+    settings: "/platform/settings",
     businesses: {
       /** `GET ?status&q&page&limit` → Page<PlatformBusiness>, newest registration first. */
       list: "/platform/businesses",

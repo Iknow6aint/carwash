@@ -50,9 +50,16 @@ export function PlatformOverview() {
             size="md"
             value={formatNaira(data.last30Days.revenueKobo)}
           />
+          <StatTile
+            helper={`${formatNaira(data.platformFees.perTransactionKobo)} per paid sale`}
+            label="Platform fees · 30 days"
+            size="md"
+            value={formatNaira(data.platformFees.last30DaysKobo)}
+          />
         </>
       ) : (
         <>
+          <StatTileSkeleton size="md" />
           <StatTileSkeleton size="md" />
           <StatTileSkeleton size="md" />
           <StatTileSkeleton size="md" />

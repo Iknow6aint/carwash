@@ -58,7 +58,8 @@ src/
     (auth)/change-password Temporary passwords are changed here first
     (auth)/business-status Staff of a pending or suspended business wait here
     (desk)/                Staff shell: dashboard, new, transactions, services, qr-menu, reports, settings
-    (platform)/platform    Super admin shell: businesses list and /platform/businesses/[id]
+    (platform)/platform    Super admin shell: overview, businesses, transactions, disputes,
+                           withdrawals, revenue, notifications, settings
     api/export/…           Two CSV Route Handlers (transactions, daily totals)
     menu/[id]              Public QR menu (no session; outside the proxy's protected pages)
   components/

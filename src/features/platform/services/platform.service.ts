@@ -9,14 +9,26 @@ import { authenticatedBackendRequest } from "@/lib/auth/authenticated-backend";
 
 import {
   listBusinessesQuerySchema,
+  listPlatformTransactionsQuerySchema,
   platformBusinessPageSchema,
   platformBusinessSchema,
+  platformNotificationSchema,
   platformOverviewSchema,
+  platformRevenueSchema,
+  platformSettingsSchema,
+  platformTransactionPageSchema,
   suspendBusinessSchema,
+  updatePlatformSettingsSchema,
   type ListBusinessesQuery,
+  type ListPlatformTransactionsQuery,
   type PlatformBusiness,
   type PlatformBusinessPage,
+  type PlatformNotification,
   type PlatformOverview,
+  type PlatformRevenue,
+  type PlatformSettings,
+  type PlatformTransactionPage,
+  type UpdatePlatformSettingsInput,
 } from "../schemas/platform.schema";
 
 /**
@@ -98,6 +110,64 @@ export async function reactivateBusiness(id: string): Promise<ServiceResult<Plat
         method: "POST",
       }),
       parseBusiness,
+    ),
+  );
+}
+
+/** Platform-wide transaction metadata (no customer or vehicle data). */
+export async function listPlatformTransactions(
+  query: ListPlatformTransactionsQuery,
+): Promise<ServiceResult<PlatformTransactionPage>> {
+  return executeBackendService(async () => {
+    const parsed = listPlatformTransactionsQuerySchema.parse(query);
+    return mapBackendData(
+      authenticatedBackendRequest(
+        withQuery(API_ROUTES.platform.transactions, {
+          status: parsed.status === "all" ? undefined : parsed.status,
+          method: parsed.method === "all" ? undefined : parsed.method,
+          q: parsed.q || undefined,
+          page: parsed.page,
+          limit: parsed.limit,
+        }),
+      ),
+      (data) => platformTransactionPageSchema.parse(data),
+    );
+  });
+}
+
+/** Calculated platform fees over 12 months plus the top businesses by fees. */
+export async function getPlatformRevenue(): Promise<ServiceResult<PlatformRevenue>> {
+  return executeBackendService(async () =>
+    mapBackendData(authenticatedBackendRequest(API_ROUTES.platform.revenue), (data) =>
+      platformRevenueSchema.parse(data),
+    ),
+  );
+}
+
+export async function getPlatformSettings(): Promise<ServiceResult<PlatformSettings>> {
+  return executeBackendService(async () =>
+    mapBackendData(authenticatedBackendRequest(API_ROUTES.platform.settings), (data) =>
+      platformSettingsSchema.parse(data),
+    ),
+  );
+}
+
+export async function updatePlatformSettings(
+  input: UpdatePlatformSettingsInput,
+): Promise<ServiceResult<PlatformSettings>> {
+  return executeBackendService(async () => {
+    const body = updatePlatformSettingsSchema.parse(input);
+    return mapBackendData(
+      authenticatedBackendRequest(API_ROUTES.platform.settings, { method: "PATCH", body }),
+      (data) => platformSettingsSchema.parse(data),
+    );
+  });
+}
+
+export async function getPlatformNotifications(): Promise<ServiceResult<PlatformNotification[]>> {
+  return executeBackendService(async () =>
+    mapBackendData(authenticatedBackendRequest(API_ROUTES.platform.notifications), (data) =>
+      platformNotificationSchema.array().parse(data),
     ),
   );
 }

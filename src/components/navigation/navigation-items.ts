@@ -1,4 +1,6 @@
 import {
+  AlertTriangle,
+  Bell,
   Building2,
   ChartColumn,
   Droplets,
@@ -7,6 +9,7 @@ import {
   QrCode,
   Settings2,
   SquarePlus,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 
@@ -35,6 +38,12 @@ export const navigationItems: readonly NavigationItem[] = [
 export const platformNavigationItems: readonly NavigationItem[] = [
   { label: "Overview", href: "/platform", icon: LayoutDashboard },
   { label: "Businesses", href: "/platform/businesses", icon: Building2 },
+  { label: "Transactions", href: "/platform/transactions", icon: List },
+  { label: "Disputes & refunds", href: "/platform/disputes", icon: AlertTriangle },
+  { label: "Withdrawals", href: "/platform/withdrawals", icon: Wallet },
+  { label: "Revenue", href: "/platform/revenue", icon: ChartColumn },
+  { label: "Notifications", href: "/platform/notifications", icon: Bell },
+  { label: "Settings", href: "/platform/settings", icon: Settings2 },
 ];
 
 /** Which sidebar a shell shows: the payment desk (staff) or the platform (super admins). */

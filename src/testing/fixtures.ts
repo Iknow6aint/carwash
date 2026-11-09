@@ -287,4 +287,9 @@ export const platformBusinessPage = {
 export const platformOverview = {
   businesses: { total: 3, pending: 1, active: 1, suspended: 1 },
   last30Days: { carsWashed: 412, revenueKobo: 241_500_000 },
+  platformFees: {
+    last30DaysKobo: 4_120_000,
+    perTransactionKobo: 10_000,
+    payer: "customer",
+  },
 } satisfies PlatformOverview;
