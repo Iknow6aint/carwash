@@ -1,24 +1,33 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { PageHeader } from "@/components/layout/page-header";
-import { BusinessesView } from "@/features/platform/components/businesses-view";
+import { buttonVariants } from "@/components/ui/button";
+import { PendingBusinesses } from "@/features/platform/components/pending-businesses";
 import { PlatformOverview } from "@/features/platform/components/platform-overview";
-import { parseBusinessFilters } from "@/features/platform/utils/business-filters";
 import { requireSuperAdmin } from "@/lib/auth/session";
 
-export const metadata: Metadata = { title: "Businesses" };
+export const metadata: Metadata = { title: "Platform overview" };
 
-export default async function PlatformPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+/** The super admin's landing: platform figures and the registrations waiting for review. */
+export default async function PlatformPage() {
   await requireSuperAdmin();
   return (
     <>
-      <PageHeader showNewTransaction={false} title="Businesses" />
+      <PageHeader showNewTransaction={false} title="Platform overview" />
       <PlatformOverview />
-      <BusinessesView initialFilters={parseBusinessFilters(await searchParams)} />
+      <div className="flex flex-wrap gap-2">
+        <Link className={buttonVariants({ variant: "secondary" })} href="/platform/businesses">
+          All businesses
+        </Link>
+        <Link
+          className={buttonVariants({ variant: "secondary" })}
+          href="/platform/businesses?status=pending"
+        >
+          Registrations to review
+        </Link>
+      </div>
+      <PendingBusinesses />
     </>
   );
 }

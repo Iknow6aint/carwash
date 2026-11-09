@@ -33,7 +33,8 @@ export const navigationItems: readonly NavigationItem[] = [
 
 /** The super admin's sidebar (platform.md). To add a page, add it here under `/platform`. */
 export const platformNavigationItems: readonly NavigationItem[] = [
-  { label: "Businesses", href: "/platform", icon: Building2 },
+  { label: "Overview", href: "/platform", icon: LayoutDashboard },
+  { label: "Businesses", href: "/platform/businesses", icon: Building2 },
 ];
 
 /** Which sidebar a shell shows: the payment desk (staff) or the platform (super admins). */

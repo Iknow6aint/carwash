@@ -16,6 +16,8 @@ export const CHANGE_PASSWORD_PATH = "/change-password";
 export const BUSINESS_STATUS_PATH = "/business-status";
 /** The super admin area. */
 export const PLATFORM_PATH = "/platform";
+/** The platform's businesses list (the landing is the overview). */
+export const PLATFORM_BUSINESSES_PATH = "/platform/businesses";
 
 /** Pages that are never a place to come back to: they would loop, or are not pages at all. */
 const NEVER_RETURN_TO = [

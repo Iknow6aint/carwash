@@ -11,7 +11,7 @@ import { Blueprint } from "@/components/ui/blueprint";
 import { buttonVariants } from "@/components/ui/button";
 import { DateText } from "@/components/ui/date-text";
 import { StatTile } from "@/components/ui/stat-tile";
-import { PLATFORM_PATH } from "@/lib/auth/return-to";
+import { PLATFORM_BUSINESSES_PATH } from "@/lib/auth/return-to";
 import { formatNaira } from "@/lib/format/money";
 import { EM_DASH } from "@/lib/format/text";
 
@@ -68,7 +68,7 @@ export function BusinessDetailView({ id }: { id: string }) {
     <div className="flex flex-col gap-7">
       <Link
         className={buttonVariants({ variant: "ghost", className: "self-start" })}
-        href={PLATFORM_PATH}
+        href={PLATFORM_BUSINESSES_PATH}
       >
         <ArrowLeft aria-hidden="true" className="size-4" strokeWidth={1.5} />
         All businesses
