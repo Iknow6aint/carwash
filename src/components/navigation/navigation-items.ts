@@ -59,10 +59,20 @@ export function isActivePath(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** The most specific active item (`/platform/businesses` beats `/platform`). */
+export function activeNavigationItem(
+  pathname: string,
+  items: readonly NavigationItem[] = navigationItems,
+): NavigationItem | undefined {
+  return items
+    .filter((item) => isActivePath(pathname, item.href))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+}
+
 /** The nav label for a path (mobile top bar). */
 export function sectionLabel(
   pathname: string,
   items: readonly NavigationItem[] = navigationItems,
 ): string | undefined {
-  return items.find((item) => isActivePath(pathname, item.href))?.label;
+  return activeNavigationItem(pathname, items)?.label;
 }
