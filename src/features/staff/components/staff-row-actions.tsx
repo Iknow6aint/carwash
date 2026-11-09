@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { toast } from "@/components/ui/toast";
 import { errorMessage } from "@/lib/api/api-error";
 import { ROLE_LABELS } from "@/lib/auth/access";
@@ -141,11 +141,10 @@ export function StaffRowActions({ member, isSelf }: { member: StaffMember; isSel
           {action === "reset" ? (
             <Field error={passwordError} hint="At least 8 characters." label="Temporary password">
               {(props) => (
-                <Input
+                <PasswordInput
                   {...props}
                   autoComplete="new-password"
                   onChange={(event) => setTemporaryPassword(event.target.value)}
-                  type="password"
                   value={temporaryPassword}
                 />
               )}

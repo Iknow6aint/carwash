@@ -6,6 +6,7 @@ import { Blueprint } from "@/components/ui/blueprint";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Select } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
 import { ApiError, errorMessage } from "@/lib/api/api-error";
@@ -107,11 +108,10 @@ export function AddStaffForm() {
           label="Temporary password"
         >
           {(props) => (
-            <Input
+            <PasswordInput
               {...props}
               autoComplete="new-password"
               onChange={(event) => change("temporaryPassword", event.target.value)}
-              type="password"
               value={draft.temporaryPassword}
             />
           )}

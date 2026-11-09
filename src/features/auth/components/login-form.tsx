@@ -8,6 +8,7 @@ import { Corners } from "@/components/ui/blueprint";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { getQueryClient } from "@/lib/api/query-client";
 import { REGISTER_PATH } from "@/lib/auth/return-to";
 
@@ -56,12 +57,11 @@ export function LoginForm({ returnTo }: { returnTo?: string | null }) {
         </Field>
         <Field label="Password">
           {(props) => (
-            <Input
+            <PasswordInput
               {...props}
               autoComplete="current-password"
               inputSize="lg"
               name="password"
-              type="password"
             />
           )}
         </Field>

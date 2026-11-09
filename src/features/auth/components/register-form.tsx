@@ -8,6 +8,7 @@ import { Corners } from "@/components/ui/blueprint";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { getQueryClient } from "@/lib/api/query-client";
 import { LOGIN_PATH } from "@/lib/auth/return-to";
 
@@ -116,13 +117,7 @@ export function RegisterForm() {
         </Field>
         <Field error={errors.password} hint="At least 8 characters." label="Password">
           {(props) => (
-            <Input
-              {...props}
-              autoComplete="new-password"
-              inputSize="lg"
-              name="password"
-              type="password"
-            />
+            <PasswordInput {...props} autoComplete="new-password" inputSize="lg" name="password" />
           )}
         </Field>
 

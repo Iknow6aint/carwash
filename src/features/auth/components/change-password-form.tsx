@@ -7,7 +7,7 @@ import { FormErrors } from "@/components/feedback/form-errors";
 import { Corners } from "@/components/ui/blueprint";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 
 import { changePassword, signOut } from "../services/auth.service";
 import { initialChangePasswordState } from "../utils/form-state";
@@ -52,23 +52,21 @@ export function ChangePasswordForm({
           label="Current password"
         >
           {(props) => (
-            <Input
+            <PasswordInput
               {...props}
               autoComplete="current-password"
               inputSize="lg"
               name="currentPassword"
-              type="password"
             />
           )}
         </Field>
         <Field error={state.errors.newPassword} hint="At least 8 characters." label="New password">
           {(props) => (
-            <Input
+            <PasswordInput
               {...props}
               autoComplete="new-password"
               inputSize="lg"
               name="newPassword"
-              type="password"
             />
           )}
         </Field>
