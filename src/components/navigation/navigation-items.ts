@@ -4,6 +4,7 @@ import {
   Droplets,
   LayoutDashboard,
   List,
+  QrCode,
   Settings2,
   SquarePlus,
   type LucideIcon,
@@ -25,6 +26,7 @@ export const navigationItems: readonly NavigationItem[] = [
   { label: "New transaction", href: "/new", icon: SquarePlus },
   { label: "Transactions", href: "/transactions", icon: List },
   { label: "Services & prices", href: "/services", icon: Droplets },
+  { label: "QR menu", href: "/qr-menu", icon: QrCode },
   { label: "Reports", href: "/reports", icon: ChartColumn },
   { label: "Settings & staff", href: "/settings", icon: Settings2 },
 ];

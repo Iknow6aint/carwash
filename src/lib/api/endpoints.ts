@@ -38,8 +38,15 @@ export const API_ROUTES = {
   services: {
     /** `GET ?active` → Service[]; `POST { name, priceKobo }` (admin) → Service. */
     list: "/services",
+    /** `POST { items }` (admin) → `{ created, updated }`. */
+    import: "/services/import",
     /** `PATCH { name?, priceKobo?, isActive?, sortOrder? }` (admin) → Service. */
     detail: (id: string) => `/services/${encodeURIComponent(id)}`,
+  },
+  /** menu.md — public, no session. */
+  menu: {
+    /** `GET` → PublicMenu. 404 when the business is not active. */
+    show: (businessId: string) => `/menu/${encodeURIComponent(businessId)}`,
   },
   /** transactions.md */
   transactions: {

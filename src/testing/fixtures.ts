@@ -120,6 +120,7 @@ export const businessSettings = {
   receiptFooter: "Clean car. Clear impression.",
   currency: "NGN",
   requirePaymentConfirmation: true,
+  showMenuPrices: true,
   updatedAt: "2026-10-01T09:00:00.000Z",
 } satisfies BusinessSettings;
 

@@ -152,6 +152,13 @@ describe("proxy", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("lets a customer open a public QR menu without a session", async () => {
+    const response = await proxy(request("/menu/6713a1f0c2b4a9e1d0f3b001"));
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+    expect(response.headers.get("x-middleware-request-x-desk-path")).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("keeps the business status and platform pages behind a session", async () => {
     const status = await proxy(request("/business-status"));
     expect(status.status).toBe(307);

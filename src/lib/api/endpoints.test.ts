@@ -7,6 +7,8 @@ describe("API_ROUTES", () => {
     expect(API_ROUTES.transactions.cancel("abc")).toBe("/transactions/abc/cancel");
     expect(API_ROUTES.staff.resetPassword("u1")).toBe("/staff/u1/reset-password");
     expect(API_ROUTES.services.detail("a/b")).toBe("/services/a%2Fb");
+    expect(API_ROUTES.services.import).toBe("/services/import");
+    expect(API_ROUTES.menu.show("a/b")).toBe("/menu/a%2Fb");
     expect(API_ROUTES.platform.businesses.approve("b1")).toBe("/platform/businesses/b1/approve");
     expect(API_ROUTES.platform.businesses.suspend("b1")).toBe("/platform/businesses/b1/suspend");
     expect(API_ROUTES.platform.businesses.reactivate("b/1")).toBe(

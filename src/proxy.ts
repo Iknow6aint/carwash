@@ -17,8 +17,16 @@ import {
 
 const rotate = createRefreshCoordinator({ refresh: requestRefresh });
 
-/** Pages a signed-out visitor may open: sign in, and register a new car wash. */
+/** Pages a signed-out visitor may open: sign in, register, and the public QR menu. */
 const PUBLIC_AUTH_PATHS: readonly string[] = [LOGIN_PATH, REGISTER_PATH];
+const PUBLIC_PREFIXES: readonly string[] = ["/menu/"];
+
+function isPublicPath(pathname: string): boolean {
+  return (
+    PUBLIC_AUTH_PATHS.includes(pathname) ||
+    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+  );
+}
 
 /**
  * Keeps the desk session alive before any page renders (Next 16 proxy, Node.js runtime). The
@@ -31,12 +39,13 @@ const PUBLIC_AUTH_PATHS: readonly string[] = [LOGIN_PATH, REGISTER_PATH];
  *   `X-Client-Ip`, read straight from `request.headers`.
  * - No usable session on a protected page: redirect to `/login?returnTo=<this page>`.
  *
- * `/login` and `/register` pass through too, so someone returning with only a refresh cookie is
- * signed in again and the page sends them on. Server Action calls are never redirected: the service answers
- * `unauthorized` and the client sends the tablet to sign in (see lib/api/query-client.ts).
+ * `/login`, `/register` and `/menu/...` pass through too, so someone returning with only a
+ * refresh cookie is signed in again and the page sends them on. Server Action calls are never
+ * redirected: the service answers `unauthorized` and the client sends the tablet to sign in
+ * (see lib/api/query-client.ts).
  */
 export async function proxy(request: NextRequest) {
-  const isLogin = PUBLIC_AUTH_PATHS.includes(request.nextUrl.pathname);
+  const isLogin = isPublicPath(request.nextUrl.pathname);
   const isServerAction = request.headers.has("next-action");
   const returnTo = returnToFromUrl(request.nextUrl);
   const refreshToken = request.cookies.get(AUTH_COOKIE.refresh)?.value;

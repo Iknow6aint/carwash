@@ -47,3 +47,19 @@ export const updateServiceSchema = z
   })
   .partial();
 export type UpdateServiceInput = z.input<typeof updateServiceSchema>;
+
+/** `POST /services/import` body (admin): 1–500 rows. */
+export const importServicesSchema = z.object({
+  items: z
+    .array(z.object({ name: nameSchema, priceKobo: priceKoboSchema }))
+    .min(1, "Add at least one service.")
+    .max(500, "Import at most 500 services at once."),
+});
+export type ImportServicesInput = z.input<typeof importServicesSchema>;
+
+/** `POST /services/import` result. */
+export const importServicesResultSchema = z.object({
+  created: countSchema,
+  updated: countSchema,
+});
+export type ImportServicesResult = z.output<typeof importServicesResultSchema>;

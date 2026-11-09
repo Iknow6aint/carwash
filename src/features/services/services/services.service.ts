@@ -9,10 +9,14 @@ import { authenticatedBackendRequest } from "@/lib/auth/authenticated-backend";
 
 import {
   createServiceSchema,
+  importServicesResultSchema,
+  importServicesSchema,
   serviceListSchema,
   serviceSchema,
   updateServiceSchema,
   type CreateServiceInput,
+  type ImportServicesInput,
+  type ImportServicesResult,
   type Service,
   type UpdateServiceInput,
 } from "../schemas/service.schema";
@@ -46,6 +50,22 @@ export async function createService(input: CreateServiceInput): Promise<ServiceR
     return mapBackendData(
       authenticatedBackendRequest(API_ROUTES.services.list, { method: "POST", body }),
       (data) => serviceSchema.parse(data),
+    );
+  });
+}
+
+/**
+ * Imports a price list in one transaction (admin): existing names get the new price, new names
+ * are added active. Inactive services keep their status.
+ */
+export async function importServices(
+  input: ImportServicesInput,
+): Promise<ServiceResult<ImportServicesResult>> {
+  return executeBackendService(async () => {
+    const body = importServicesSchema.parse(input);
+    return mapBackendData(
+      authenticatedBackendRequest(API_ROUTES.services.import, { method: "POST", body }),
+      (data) => importServicesResultSchema.parse(data),
     );
   });
 }

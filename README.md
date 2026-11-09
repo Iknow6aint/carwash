@@ -57,9 +57,10 @@ src/
     (auth)/register        A car wash registers itself and its owner (public)
     (auth)/change-password Temporary passwords are changed here first
     (auth)/business-status Staff of a pending or suspended business wait here
-    (desk)/                Staff shell: dashboard, new, transactions, services, reports, settings
+    (desk)/                Staff shell: dashboard, new, transactions, services, qr-menu, reports, settings
     (platform)/platform    Super admin shell: businesses list and /platform/businesses/[id]
     api/export/…           Two CSV Route Handlers (transactions, daily totals)
+    menu/[id]              Public QR menu (no session; outside the proxy's protected pages)
   components/
     ui/  feedback/  layout/  navigation/  access/
   features/<domain>/       components/ hooks/ schemas/ services/ utils/

@@ -10,6 +10,8 @@ export const businessSettingsSchema = z.object({
   receiptFooter: z.string(),
   currency: z.literal("NGN"),
   requirePaymentConfirmation: z.boolean(),
+  /** Whether the public QR menu shows prices. */
+  showMenuPrices: z.boolean(),
   updatedAt: isoDateTimeSchema,
 });
 export type BusinessSettings = z.output<typeof businessSettingsSchema>;
@@ -26,6 +28,7 @@ export const updateBusinessSettingsSchema = z
     address: z.string().trim().max(160, "Use 160 characters or fewer."),
     receiptFooter: z.string().trim().max(120, "Use 120 characters or fewer."),
     requirePaymentConfirmation: z.boolean(),
+    showMenuPrices: z.boolean(),
   })
   .partial();
 export type UpdateBusinessSettingsInput = z.input<typeof updateBusinessSettingsSchema>;
