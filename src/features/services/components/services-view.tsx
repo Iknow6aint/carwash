@@ -6,6 +6,7 @@ import { Can } from "@/components/access/can";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { ErrorState } from "@/components/feedback/error-state";
 import { Notice } from "@/components/feedback/notice";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -18,6 +19,7 @@ import { useCan } from "@/providers/session-provider";
 
 import { useServices } from "../hooks/use-services";
 
+import { AddMultipleServicesForm } from "./add-multiple-services-form";
 import { AddServiceForm } from "./add-service-form";
 import { BulkServiceUpload } from "./bulk-service-upload";
 import { ServiceRow } from "./service-row";
@@ -30,6 +32,11 @@ export function ServicesView() {
   const services = useServices();
   const canManage = useCan("services:manage");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const needle = query.trim().toLowerCase();
+  const filtered = needle
+    ? services.data?.filter((service) => service.name.toLowerCase().includes(needle))
+    : services.data;
 
   return (
     <div className="flex max-w-[880px] flex-col gap-5">
@@ -44,6 +51,7 @@ export function ServicesView() {
       >
         <div className="flex flex-col gap-5">
           <AddServiceForm />
+          <AddMultipleServicesForm />
           <BulkServiceUpload />
         </div>
       </Can>
@@ -64,35 +72,51 @@ export function ServicesView() {
           title="No services yet."
         />
       ) : (
-        <TableContainer label="Services and prices">
-          <Table>
-            <TableHeader>
-              <tr>
-                <TableHead>Service</TableHead>
-                <TableHead numeric>Price</TableHead>
-                <TableHead numeric>Sold · 30 days</TableHead>
-                <TableHead>Status</TableHead>
-                {canManage ? (
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                ) : null}
-              </tr>
-            </TableHeader>
-            <TableBody>
-              {services.data.map((service) => (
-                <ServiceRow
-                  canManage={canManage}
-                  editing={editingId === service.id}
-                  key={service.id}
-                  onDoneEditing={() => setEditingId(null)}
-                  onEdit={() => setEditingId(service.id)}
-                  service={service}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <>
+          <Input
+            aria-label="Search services"
+            className="w-full min-w-0"
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search services"
+            type="search"
+            value={query}
+          />
+          {filtered && filtered.length === 0 ? (
+            <p className="py-8 text-center text-[14px] text-neutral-700">
+              No service matches “{query.trim()}”.
+            </p>
+          ) : (
+            <TableContainer label="Services and prices">
+              <Table>
+                <TableHeader>
+                  <tr>
+                    <TableHead>Service</TableHead>
+                    <TableHead numeric>Price</TableHead>
+                    <TableHead numeric>Sold · 30 days</TableHead>
+                    <TableHead>Status</TableHead>
+                    {canManage ? (
+                      <TableHead>
+                        <span className="sr-only">Actions</span>
+                      </TableHead>
+                    ) : null}
+                  </tr>
+                </TableHeader>
+                <TableBody>
+                  {(filtered ?? []).map((service) => (
+                    <ServiceRow
+                      canManage={canManage}
+                      editing={editingId === service.id}
+                      key={service.id}
+                      onDoneEditing={() => setEditingId(null)}
+                      onEdit={() => setEditingId(service.id)}
+                      service={service}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </>
       )}
 
       <p className="text-[13px] text-neutral-700">
