@@ -18,7 +18,8 @@ const context = { listPriceKobo: LIST_PRICE, requirePaymentConfirmation: true };
 const ready: NewTransactionForm = {
   ...BLANK_NEW_TRANSACTION,
   serviceId: FULL_WASH_ID,
-  method: "cash",
+  method: "transfer",
+  confirmed: true,
 };
 
 describe("validateNewTransaction", () => {
@@ -40,10 +41,10 @@ describe("validateNewTransaction", () => {
       ok: true,
       input: {
         serviceId: FULL_WASH_ID,
-        method: "cash",
+        method: "transfer",
         plate: "KJA 482 FX",
         makeModel: null,
-        paymentConfirmed: false,
+        paymentConfirmed: true,
       },
     });
   });
@@ -65,11 +66,13 @@ describe("validateNewTransaction", () => {
   });
 
   it("asks transfer and POS for their own confirmation, never cash", () => {
-    expect(validateNewTransaction({ ...ready, method: "transfer" }, context)).toEqual({
+    expect(
+      validateNewTransaction({ ...ready, method: "transfer", confirmed: false }, context),
+    ).toEqual({
       ok: false,
       errors: ["Confirm the transfer has arrived."],
     });
-    expect(validateNewTransaction({ ...ready, method: "pos" }, context)).toEqual({
+    expect(validateNewTransaction({ ...ready, method: "pos", confirmed: false }, context)).toEqual({
       ok: false,
       errors: ["Confirm the POS slip shows approved."],
     });

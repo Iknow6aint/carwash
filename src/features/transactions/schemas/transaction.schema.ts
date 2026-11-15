@@ -8,11 +8,13 @@ import {
   koboSchema,
   pageSchema,
 } from "@/lib/api/schema-helpers";
-import { PAYMENT_METHODS } from "@/lib/format/payment-method";
+import { PAYMENT_METHODS, SELECTABLE_PAYMENT_METHODS } from "@/lib/format/payment-method";
 
 /** transactions.md */
 
 export const paymentMethodSchema = z.enum(PAYMENT_METHODS);
+/** A new sale may only be transfer or POS; cash is legacy. */
+export const selectablePaymentMethodSchema = z.enum(SELECTABLE_PAYMENT_METHODS);
 
 export const TRANSACTION_STATUSES = ["paid", "cancelled"] as const;
 export type TransactionStatus = (typeof TRANSACTION_STATUSES)[number];
@@ -84,7 +86,7 @@ export type ListTransactionsQuery = z.input<typeof listTransactionsQuerySchema>;
 /** `POST /transactions` body. */
 export const createTransactionSchema = z.object({
   serviceId: idSchema,
-  method: paymentMethodSchema,
+  method: selectablePaymentMethodSchema,
   plate: z.string().max(15, "Plate numbers are 15 characters or fewer.").nullable().optional(),
   makeModel: z.string().max(60, "Make and model is 60 characters or fewer.").nullable().optional(),
   /** Omit to charge the list price. Whole naira, ₦1 – ₦1,000,000. */

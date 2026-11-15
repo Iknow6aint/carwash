@@ -8,7 +8,7 @@ import { Seg, type SegOption } from "@/components/ui/seg";
 import { Select } from "@/components/ui/select";
 import {
   PAYMENT_METHOD_LABELS,
-  PAYMENT_METHODS,
+  SELECTABLE_PAYMENT_METHODS,
   type PaymentMethod,
 } from "@/lib/format/payment-method";
 
@@ -70,7 +70,7 @@ export function TransactionsFilters({
         wrapperClassName="w-auto"
       >
         <option value="all">All methods</option>
-        {PAYMENT_METHODS.map((method) => (
+        {SELECTABLE_PAYMENT_METHODS.map((method) => (
           <option key={method} value={method}>
             {PAYMENT_METHOD_LABELS[method]}
           </option>

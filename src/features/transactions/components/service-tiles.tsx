@@ -19,6 +19,8 @@ export function ServiceTiles({
   selectedId,
   onSelect,
   labelledBy,
+  emptyTitle = "No services to sell yet.",
+  emptyDescription = "An admin can add them in Services & prices.",
 }: {
   services: readonly Service[] | undefined;
   isPending: boolean;
@@ -27,6 +29,8 @@ export function ServiceTiles({
   selectedId: string | null;
   onSelect: (service: Service) => void;
   labelledBy: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }) {
   if (isPending) {
     return (
@@ -47,8 +51,8 @@ export function ServiceTiles({
     return (
       <EmptyState
         className="items-start py-4 text-left"
-        description="An admin can add them in Services & prices."
-        title="No services to sell yet."
+        description={emptyDescription}
+        title={emptyTitle}
       />
     );
   }

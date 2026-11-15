@@ -6,6 +6,13 @@
 export const PAYMENT_METHODS = ["cash", "transfer", "pos"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
+/**
+ * What a cashier may choose for a new sale. Cash is no longer offered; the label and enum stay
+ * for historical transactions, receipts and reports.
+ */
+export const SELECTABLE_PAYMENT_METHODS = ["transfer", "pos"] as const;
+export type SelectablePaymentMethod = (typeof SELECTABLE_PAYMENT_METHODS)[number];
+
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   cash: "Cash",
   transfer: "Bank transfer",

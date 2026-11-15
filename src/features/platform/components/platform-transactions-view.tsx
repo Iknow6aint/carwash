@@ -21,13 +21,13 @@ import { Tag } from "@/components/ui/tag";
 import { useDebouncedValue } from "@/features/transactions/hooks/use-debounced-value";
 import { formatShortDate } from "@/lib/format/date";
 import { formatNaira } from "@/lib/format/money";
-import { formatPaymentMethod, PAYMENT_METHODS } from "@/lib/format/payment-method";
+import { formatPaymentMethod, SELECTABLE_PAYMENT_METHODS } from "@/lib/format/payment-method";
 
 import { usePlatformTransactions } from "../hooks/use-platform";
 import { PLATFORM_TRANSACTION_STATUSES } from "../schemas/platform.schema";
 
 type StatusFilter = (typeof PLATFORM_TRANSACTION_STATUSES)[number];
-type MethodFilter = "all" | "cash" | "transfer" | "pos";
+type MethodFilter = "all" | "transfer" | "pos";
 
 const STATUS_OPTIONS: ReadonlyArray<SegOption<StatusFilter>> = [
   { value: "all", label: "All" },
@@ -81,7 +81,7 @@ export function PlatformTransactionsView() {
           wrapperClassName="w-auto"
         >
           <option value="all">All methods</option>
-          {PAYMENT_METHODS.map((value) => (
+          {SELECTABLE_PAYMENT_METHODS.map((value) => (
             <option key={value} value={value}>
               {formatPaymentMethod(value)}
             </option>

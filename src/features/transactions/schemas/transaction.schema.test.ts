@@ -76,7 +76,7 @@ describe("request schemas", () => {
   });
 
   it("only accepts whole-naira amounts on a new transaction", () => {
-    const base = { serviceId: paidTransaction.service.id, method: "cash" as const };
+    const base = { serviceId: paidTransaction.service.id, method: "transfer" as const };
     expect(createTransactionSchema.safeParse({ ...base, amountKobo: 250_000 }).success).toBe(true);
     expect(createTransactionSchema.safeParse({ ...base, amountKobo: 250_050 }).success).toBe(false);
     expect(createTransactionSchema.safeParse({ ...base, amountKobo: 0 }).success).toBe(false);

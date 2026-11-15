@@ -34,7 +34,9 @@ const saved = {
   message: `Saved ${paidTransaction.reference}`,
 };
 
-function setup(settings: BusinessSettings = businessSettings) {
+function setup(
+  settings: BusinessSettings = { ...businessSettings, requirePaymentConfirmation: false },
+) {
   vi.mocked(listServices).mockResolvedValue({
     ok: true,
     data: [exteriorWash, fullWash],
@@ -68,7 +70,7 @@ describe("NewTransactionForm", () => {
   it("records a sale in three taps and opens the receipt", async () => {
     vi.mocked(createTransaction).mockResolvedValue({
       ...saved,
-      data: { ...paidTransaction, method: "cash" },
+      data: { ...paidTransaction, method: "transfer" },
     });
     const { pickService, pickMethod, save, user } = setup();
 
@@ -78,13 +80,13 @@ describe("NewTransactionForm", () => {
       "true",
     );
     await user.type(screen.getByLabelText("Plate number"), "kja  482 fx");
-    await pickMethod("Cash");
+    await pickMethod("Bank transfer");
     await save();
 
     await waitFor(() => expect(createTransaction).toHaveBeenCalledTimes(1));
     expect(vi.mocked(createTransaction).mock.calls[0]?.[0]).toEqual({
       serviceId: FULL_WASH_ID,
-      method: "cash",
+      method: "transfer",
       plate: "KJA 482 FX",
       makeModel: null,
       paymentConfirmed: false,
@@ -104,7 +106,7 @@ describe("NewTransactionForm", () => {
     const { pickService, pickMethod, save, errors, user } = setup();
 
     await pickService("Full wash");
-    await pickMethod("Cash");
+    await pickMethod("Bank transfer");
     expect(screen.queryByLabelText("Amount charged (₦)")).not.toBeInTheDocument();
     await user.click(screen.getByRole("checkbox", { name: "Adjust price" }));
     await save();
@@ -129,13 +131,11 @@ describe("NewTransactionForm", () => {
   });
 
   it("shows the confirmation tick only for transfer and POS, with the exact copy", async () => {
-    const { pickService, pickMethod, save, errors, user } = setup();
+    const { pickService, pickMethod, save, errors, user } = setup({
+      ...businessSettings,
+      requirePaymentConfirmation: true,
+    });
     await pickService("Exterior wash");
-
-    await pickMethod("Cash");
-    expect(
-      screen.queryByRole("checkbox", { name: /transfer has arrived|approved slip/ }),
-    ).not.toBeInTheDocument();
 
     await pickMethod("Bank transfer");
     expect(
@@ -186,7 +186,7 @@ describe("NewTransactionForm", () => {
     const { pickService, pickMethod, save, errors, user } = setup();
 
     await pickService("Full wash");
-    await pickMethod("Cash");
+    await pickMethod("Bank transfer");
     await save();
     await waitFor(() =>
       expect(errors()).toHaveTextContent("Try again; the sale won't be saved twice."),
@@ -200,7 +200,7 @@ describe("NewTransactionForm", () => {
 
     await user.click(await screen.findByRole("button", { name: "Done" }));
     await pickService("Exterior wash");
-    await pickMethod("Cash");
+    await pickMethod("Bank transfer");
     await save();
     await waitFor(() => expect(createTransaction).toHaveBeenCalledTimes(3));
     expect(vi.mocked(createTransaction).mock.calls[2]?.[1]).not.toBe(firstKey);
@@ -216,7 +216,10 @@ describe("NewTransactionForm", () => {
         message: "Confirm the transfer has arrived. / Confirm the POS slip shows approved.",
       },
     });
-    const { pickService, pickMethod, save, errors, user } = setup();
+    const { pickService, pickMethod, save, errors, user } = setup({
+      ...businessSettings,
+      requirePaymentConfirmation: true,
+    });
     await pickService("Full wash");
     await pickMethod("Bank transfer");
     await user.click(screen.getByRole("checkbox", { name: /transfer has arrived/ }));

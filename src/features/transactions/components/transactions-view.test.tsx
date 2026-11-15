@@ -48,23 +48,23 @@ describe("TransactionsView", () => {
     await screen.findByText("3 transactions · ₦11,500 paid");
 
     await user.click(screen.getByRole("radio", { name: "7 days" }));
-    await user.selectOptions(screen.getByRole("combobox", { name: "Payment method" }), "cash");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Payment method" }), "transfer");
     await waitFor(() =>
-      expect(replace).toHaveBeenLastCalledWith("/transactions?range=7d&method=cash", {
+      expect(replace).toHaveBeenLastCalledWith("/transactions?range=7d&method=transfer", {
         scroll: false,
       }),
     );
     await waitFor(() =>
       expect(listTransactions).toHaveBeenLastCalledWith({
         range: "7d",
-        method: "cash",
+        method: "transfer",
         page: 1,
         limit: 40,
       }),
     );
     expect(screen.getByRole("link", { name: "Export CSV" })).toHaveAttribute(
       "href",
-      "/api/export/transactions?range=7d&method=cash",
+      "/api/export/transactions?range=7d&method=transfer",
     );
   });
 

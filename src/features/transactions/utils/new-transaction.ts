@@ -1,6 +1,6 @@
 import { ApiError } from "@/lib/api/api-error";
 import { formatNaira, nairaToKobo } from "@/lib/format/money";
-import type { PaymentMethod } from "@/lib/format/payment-method";
+import type { PaymentMethod, SelectablePaymentMethod } from "@/lib/format/payment-method";
 import { normalizePlate } from "@/lib/format/plate";
 
 import type { CreateTransactionInput } from "../schemas/transaction.schema";
@@ -14,7 +14,7 @@ export interface NewTransactionForm {
   serviceId: string | null;
   plate: string;
   makeModel: string;
-  method: PaymentMethod | null;
+  method: SelectablePaymentMethod | null;
   /** "Adjust price" is ticked. */
   adjust: boolean;
   /** "Amount charged (₦)" as typed. */
@@ -135,7 +135,7 @@ export function validateNewTransaction(
       ...(form.adjust
         ? { amountKobo: nairaToKobo(amountNaira), adjustmentReason: form.reason.trim() }
         : {}),
-      paymentConfirmed: form.method !== "cash" && form.confirmed,
+      paymentConfirmed: form.confirmed,
     },
   };
 }

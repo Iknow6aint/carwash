@@ -9,7 +9,7 @@ import { useServices } from "@/features/services/hooks/use-services";
 import { useBusinessSettings } from "@/features/settings/hooks/use-business-settings";
 import { ApiError } from "@/lib/api/api-error";
 import { formatNaira } from "@/lib/format/money";
-import { formatPaymentMethod, type PaymentMethod } from "@/lib/format/payment-method";
+import { formatPaymentMethod, type SelectablePaymentMethod } from "@/lib/format/payment-method";
 import { EM_DASH } from "@/lib/format/text";
 
 import { useCreateTransaction } from "../hooks/use-transactions";
@@ -45,10 +45,15 @@ export function NewTransactionForm() {
   const requirePaymentConfirmation = settings.data?.requirePaymentConfirmation ?? true;
 
   const [form, setForm] = useState<FormState>(BLANK_NEW_TRANSACTION);
+  const [serviceQuery, setServiceQuery] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
   const [idempotencyKey, setIdempotencyKey] = useState(newIdempotencyKey);
   const [receipt, setReceipt] = useState<Transaction | null>(null);
 
+  const serviceNeedle = serviceQuery.trim().toLowerCase();
+  const visibleServices = serviceNeedle
+    ? services.data?.filter((service) => service.name.toLowerCase().includes(serviceNeedle))
+    : services.data;
   const selected = services.data?.find((service) => service.id === form.serviceId) ?? null;
   const listPriceKobo = selected?.priceKobo ?? null;
   const { totalKobo, adjustmentNote } = summarise(form, listPriceKobo);
@@ -63,7 +68,7 @@ export function NewTransactionForm() {
     if (clearErrors) setErrors([]);
   }
 
-  function selectMethod(method: PaymentMethod) {
+  function selectMethod(method: SelectablePaymentMethod) {
     // A new method needs its own confirmation.
     update({ method, confirmed: false }, true);
   }
@@ -111,14 +116,25 @@ export function NewTransactionForm() {
             <StepHeading id="step-service" step="01">
               Service
             </StepHeading>
+            <Input
+              aria-label="Search services"
+              autoComplete="off"
+              inputSize="lg"
+              onChange={(event) => setServiceQuery(event.target.value)}
+              placeholder="Search services"
+              type="search"
+              value={serviceQuery}
+            />
             <ServiceTiles
+              emptyDescription={serviceNeedle ? "Clear the search or try another word." : undefined}
+              emptyTitle={serviceNeedle ? "No service matches that." : undefined}
               error={services.error}
               isPending={services.isPending}
               labelledBy="step-service"
               onRetry={() => void services.refetch()}
               onSelect={(service) => update({ serviceId: service.id }, true)}
               selectedId={form.serviceId}
-              services={services.data}
+              services={visibleServices}
             />
           </section>
 
