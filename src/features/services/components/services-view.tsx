@@ -19,6 +19,7 @@ import { useCan } from "@/providers/session-provider";
 import { useServices } from "../hooks/use-services";
 
 import { AddServiceForm } from "./add-service-form";
+import { BulkServiceUpload } from "./bulk-service-upload";
 import { ServiceRow } from "./service-row";
 
 /**
@@ -41,7 +42,10 @@ export function ServicesView() {
           </Notice>
         }
       >
-        <AddServiceForm />
+        <div className="flex flex-col gap-5">
+          <AddServiceForm />
+          <BulkServiceUpload />
+        </div>
       </Can>
 
       {services.isPending ? (
